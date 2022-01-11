@@ -11,16 +11,27 @@ class SignUpViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .clear
         navigationController?.navigationBar.prefersLargeTitles = true
-        title = "Create an Account"
+        title = "Register"
         view.addSubview(LoginContainer)
         LoginContainer.addSubview(blankspace)
         LoginContainer.addSubview(CreateEmail)
+        ///CreateEmail.delegate = self
         LoginContainer.addSubview(CreatePassword)
-        LoginContainer.addSubview(LoginButton)
-        LoginButton.addTarget(self, action: #selector(LoginValidate), for: .touchUpInside)
+        ///CreatePassword.delegate = self
+        LoginContainer.addSubview(SignupButton)
+        LoginContainer.addSubview(PFPButton)
+        LoginContainer.addSubview(CreateUsername)
+        ///CreateUsername.delegate = self
+        SignupButton.addTarget(self, action: #selector(LoginValidate), for: .touchUpInside)
+        PFPButton.addTarget(self, action: #selector(ChangePFP), for: .touchUpInside)
     }
+    
+    @objc private func ChangePFP(){
+        self.showPhotoChooser()
+    }
+    
     private let LoginContainer: UIScrollView = {
         let LoginContainer = UIScrollView()
         LoginContainer.clipsToBounds = true
@@ -38,8 +49,10 @@ class SignUpViewController: UIViewController {
     
     private let blankspace: UIImageView = {
         let blankspace = UIImageView()
-        blankspace.image = UIImage(named: "logo")
+        blankspace.image = UIImage(named: "blankpfp")
         blankspace.contentMode = .scaleAspectFit
+        blankspace.layer.masksToBounds = true
+        blankspace.layer.cornerRadius = 65
         return blankspace
     }()
     
@@ -48,6 +61,7 @@ class SignUpViewController: UIViewController {
     private let CreateEmail: UITextField = {
         let field = UITextField()
         field.autocapitalizationType = .none
+        field.backgroundColor = .darkGray
         field.autocorrectionType = .no
         field.returnKeyType = .default
         field.layer.cornerRadius = 12
@@ -68,6 +82,7 @@ class SignUpViewController: UIViewController {
     private let CreatePassword: UITextField = {
         let field = UITextField()
         field.autocapitalizationType = .none
+        field.backgroundColor = .darkGray
         field.autocorrectionType = .no
         field.returnKeyType = .default
         field.layer.cornerRadius = 12
@@ -86,16 +101,48 @@ class SignUpViewController: UIViewController {
         
     }()
     
-    private let LoginButton: UIButton = {
+    private let CreateUsername: UITextField = {
+        let field = UITextField()
+        field.autocapitalizationType = .none
+        field.backgroundColor = .darkGray
+        field.autocorrectionType = .no
+        field.returnKeyType = .default
+        field.layer.cornerRadius = 12
+        field.layer.borderWidth = 3
+        field.layer.borderColor = UIColor.darkGray.cgColor
+        field.placeholder = "Display Name..."
+        
+        field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
+        field.leftViewMode = .always
+        //Ensures there is a suitable gap between the textbox border and the text
+        
+        return field
+        
+        //Creates a text field for inputting an email address
+        
+    }()
+    
+    private let PFPButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Log In", for: .normal)
+        button.setTitle("Choose Profile Picture", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
-        button.backgroundColor = MessagezoidBlue
+        button.backgroundColor = .systemIndigo
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 20
         button.setTitleColor(.white, for: .normal)
         return button
-        
+    }()
+    
+    
+    private let SignupButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Register", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.backgroundColor = .systemGreen
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 20
+        button.setTitleColor(.white, for: .normal)
+        return button
     }()
     
     override func viewDidLayoutSubviews() {
@@ -105,7 +152,9 @@ class SignUpViewController: UIViewController {
         blankspace.frame = CGRect(x: (LoginContainer.width-size)/2, y: 20, width: size, height: size)
         CreateEmail.frame = CGRect(x: 30, y: blankspace.bottom + 35, width: LoginContainer.width - 60, height: 42)
         CreatePassword.frame = CGRect(x: 30, y: CreateEmail.bottom + 15, width: LoginContainer.width - 60, height: 42)
-        LoginButton.frame = CGRect(x: 45, y: CreatePassword.bottom + 15, width: LoginContainer.width - 90, height: 42)
+        CreateUsername.frame = CGRect(x: 30, y: CreatePassword.bottom + 15, width: LoginContainer.width - 60, height: 42)
+        PFPButton.frame = CGRect(x: 45, y: CreateUsername.bottom + 15, width: LoginContainer.width - 90, height: 42)
+        SignupButton.frame = CGRect(x: 45, y: PFPButton.bottom + 15, width: LoginContainer.width - 90, height: 42)
         
         //This code will ensure the image is centred along the x axis: https://stackoverflow.com/questions/28173205/how-to-center-an-element-swift
         
@@ -118,15 +167,17 @@ class SignUpViewController: UIViewController {
     }
     
     @objc private func LoginValidate() {
-        guard let CheckEmail = CreateEmail.text, let CheckPassword = CreatePassword.text,
-              !CheckEmail.isEmpty, !CheckPassword.isEmpty else {
+        CreateUsername.resignFirstResponder()
+        CreateEmail.resignFirstResponder()
+        CreatePassword.resignFirstResponder()
+        guard let CheckEmail = CreateEmail.text, let CheckPassword = CreatePassword.text, let CheckUsername = CreateUsername.text, !CheckEmail.isEmpty, !CheckPassword.isEmpty, !CheckUsername.isEmpty else {
                   LoginErrorLocal()
                   return
               }
     }
     
     func LoginErrorLocal() {
-        let popup = UIAlertController(title: "Something's not right!", message: "Either your email or password field seems to be empty! Maybe try checking that and then try again!", preferredStyle: .alert)
+        let popup = UIAlertController(title: "Something's not right!", message: "Some of your registration details seem to missing!", preferredStyle: .alert)
         popup.addAction(UIAlertAction(title: "Got it!", style: .cancel, handler: nil))
         present(popup, animated: true)
         
@@ -136,3 +187,38 @@ class SignUpViewController: UIViewController {
     }
     
 }
+
+extension SignUpViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func showPhotoChooser(){
+        let vc = UIImagePickerController()
+        vc.sourceType = .photoLibrary
+        vc.delegate = self
+        //Brings up UIImagePickerController
+        
+        vc.allowsEditing = true
+        present(vc, animated: true)
+        
+        //Allows the photo to be cropped
+        
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true, completion: nil)
+        guard let NewProfilePicture = info[UIImagePickerController.InfoKey.editedImage] as? UIImage else {
+            return
+        }
+        
+        self.blankspace.image = NewProfilePicture
+    }
+     
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion: nil)
+    }
+}
+
+//User profile picture selection: https://stackoverflow.com/questions/25510081/how-to-allow-user-to-pick-the-image-with-swift
+
+//Image Editing and Extention: https://stackoverflow.com/questions/26502931/how-to-get-the-edited-image-from-uiimagepickercontroller-in-swift
+
+

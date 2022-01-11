@@ -37,6 +37,7 @@ class UserLoginViewController: UIViewController {
         let field = UITextField()
         field.autocapitalizationType = .none
         field.autocorrectionType = .no
+        field.backgroundColor = .darkGray
         field.returnKeyType = .default
         field.layer.cornerRadius = 12
         field.layer.borderWidth = 3
@@ -57,6 +58,7 @@ class UserLoginViewController: UIViewController {
         let field = UITextField()
         field.autocapitalizationType = .none
         field.autocorrectionType = .no
+        field.backgroundColor = .darkGray
         field.returnKeyType = .default
         field.layer.cornerRadius = 12
         field.layer.borderWidth = 3
@@ -86,19 +88,25 @@ class UserLoginViewController: UIViewController {
         
     }()
     
+    //Creates login button
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .clear
         navigationController?.navigationBar.prefersLargeTitles = true
         title = "Log In to MessageZoid"
         
         view.addSubview(LoginContainer)
         LoginContainer.addSubview(blankspace)
         LoginContainer.addSubview(CreateEmail)
+        ///CreateEmail.delegate = self
         LoginContainer.addSubview(CreatePassword)
+        ///CreatePassword.delegate = self
         LoginContainer.addSubview(LoginButton)
         LoginButton.addTarget(self, action: #selector(LoginValidate), for: .touchUpInside)
     }
+    
+    //Adds elements to Container
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -113,6 +121,8 @@ class UserLoginViewController: UIViewController {
     }
     
     @objc private func LoginValidate() {
+        CreateEmail.resignFirstResponder()
+        CreatePassword.resignFirstResponder()
         guard let CheckEmail = CreateEmail.text, let CheckPassword = CreatePassword.text,
               !CheckEmail.isEmpty, !CheckPassword.isEmpty else {
                   LoginErrorLocal()
@@ -120,11 +130,14 @@ class UserLoginViewController: UIViewController {
               }
     }
     
+    //Checks that username + password field have text entered
+    
     func LoginErrorLocal() {
         let popup = UIAlertController(title: "Something's not right!", message: "Either your email or password field seems to be empty! Maybe try checking that and then try again!", preferredStyle: .alert)
         popup.addAction(UIAlertAction(title: "Got it!", style: .cancel, handler: nil))
         present(popup, animated: true)
         
+        //Creates pop up if text is nit entered
         //Popup alert code for emty text fields: https://stackoverflow.com/questions/24022479/how-would-i-create-a-uialertview-in-swift
         
         

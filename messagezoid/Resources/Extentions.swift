@@ -70,3 +70,14 @@ var MessagezoidPurple = UIColor(red: 0.8745, green: 0.7608, blue: 0.8863, alpha:
 //public var right: CGFloat {
 //    return self.frame.size.width + self.frame.origin.x
 //}
+
+
+extension UIViewController: UITextFieldDelegate{
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true;
+    }
+}
+
+//Hides keyboard when return is pressed: https://stackoverflow.com/a/57217342
+
