@@ -38,21 +38,40 @@ class LoginViewController: UIViewController {
                              for: .normal)
         
         LogInButton.addTarget(self,
-                         action: #selector(LogInButtonAction),
+                         action: #selector(LoginButtonAction),
                          for: .touchUpInside)
         
         self.view.addSubview(LogInButton)
+        
+        
+        let SignUpButton = UIButton(frame: CGRect(x: 100,
+                                            y: 500,
+                                            width: 200,
+                                            height: 60))
+        SignUpButton.setTitle("Sign Up",
+                        for: .normal)
+        
+        SignUpButton.setTitleColor(.purple,
+                             for: .normal)
+        
+        SignUpButton.addTarget(self,
+                         action: #selector(SignUpButtonAction),
+                         for: .touchUpInside)
+        
+        self.view.addSubview(SignUpButton)
         
         //Creating a button to with the title of "Log In": https://programmingwithswift.com/add-uibutton-programmatically-using-swidt/
     
     }
     
-    @objc func LogInButtonAction() {
+    @objc private func LoginButtonAction() {
         let vc = UserLoginViewController()
-        let nc = UINavigationController(rootViewController: vc)
-        nc.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(vc, animated: true)
+    }
     
-        present(nc, animated: true)
+    @objc private func SignUpButtonAction() {
+        let vc = SignUpViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     

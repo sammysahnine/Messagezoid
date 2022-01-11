@@ -40,6 +40,30 @@ extension UIViewController{
 
 //To center my titles: https://stackoverflow.com/questions/57245055/how-to-center-a-large-title-in-navigation-bar-in-the-middle/66366871
 
+extension UIColor {
+
+    convenience init(rgb: UInt) {
+        self.init(rgb: rgb, alpha: 1.0)
+    }
+
+    convenience init(rgb: UInt, alpha: CGFloat) {
+        self.init(
+            red: CGFloat((rgb & 0xFF0000) >> 16) / 255.0,
+            green: CGFloat((rgb & 0x00FF00) >> 8) / 255.0,
+            blue: CGFloat(rgb & 0x0000FF) / 255.0,
+            alpha: CGFloat(alpha)
+        )
+    }
+}
+
+var MessagezoidBlue = UIColor(red: 0.149, green: 0.4706, blue: 0.6353, alpha: 1.0)
+var MessagezoidPurple = UIColor(red: 0.8745, green: 0.7608, blue: 0.8863, alpha: 1.0)
+
+//For custom colours: https://stackoverflow.com/questions/35073272/button-text-uicolor-from-hex-swift
+
+
+
+
 //public var left: CGFloat {
 //    return self.frame.origin.x
 //}
