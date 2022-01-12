@@ -133,6 +133,7 @@ class SignUpViewController: UIViewController {
         return button
     }()
     
+    //Creates profile picture button and it's properties
     
     private let SignupButton: UIButton = {
         let button = UIButton()
@@ -144,6 +145,8 @@ class SignUpViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         return button
     }()
+    
+    //Creates signup button and it's properties
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -157,13 +160,6 @@ class SignUpViewController: UIViewController {
         SignupButton.frame = CGRect(x: 45, y: PFPButton.bottom + 15, width: LoginContainer.width - 90, height: 42)
         
         //This code will ensure the image is centred along the x axis: https://stackoverflow.com/questions/28173205/how-to-center-an-element-swift
-        
-        func backToSignup() {
-            let vc = LoginViewController()
-            navigationController?.pushViewController(vc, animated: true)
-        }
-        
-        
     }
     
     @objc private func LoginValidate() {
@@ -171,9 +167,10 @@ class SignUpViewController: UIViewController {
         CreateEmail.resignFirstResponder()
         CreatePassword.resignFirstResponder()
         guard let CheckEmail = CreateEmail.text, let CheckPassword = CreatePassword.text, let CheckUsername = CreateUsername.text, !CheckEmail.isEmpty, !CheckPassword.isEmpty, !CheckUsername.isEmpty else {
-                  LoginErrorLocal()
-                  return
-              }
+            LoginErrorLocal()
+            return
+        }
+        //This code ensuures that there is text in all the textboxes: https://stackoverflow.com/questions/24102641/how-to-check-if-a-text-field-is-empty-or-not-in-swift
     }
     
     func LoginErrorLocal() {
@@ -198,7 +195,6 @@ extension SignUpViewController: UIImagePickerControllerDelegate, UINavigationCon
         
         vc.allowsEditing = true
         present(vc, animated: true)
-        
         //Allows the photo to be cropped
         
     }
@@ -210,10 +206,13 @@ extension SignUpViewController: UIImagePickerControllerDelegate, UINavigationCon
         }
         
         self.blankspace.image = NewProfilePicture
+        //Changes default profile picture at top of screen
     }
-     
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
+        
+        //Handles if image selection is cancelled
     }
 }
 
