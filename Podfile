@@ -7,4 +7,11 @@ target 'messagezoid' do
 
   # Pods for messagezoid
 
+pod 'Firebase/Core'
+pod 'Firebase/Database'
+pod 'Firebase/Auth'
+pod 'GoogleSignIn', '~> 5.0'
+pod 'Firebase'
+
+
 end

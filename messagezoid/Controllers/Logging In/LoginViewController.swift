@@ -6,63 +6,125 @@
 //
 
 import UIKit
+import FirebaseAuth
+import GoogleSignIn
 
 class LoginViewController: UIViewController {
-    
-   override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        self.centerTitle()
-    
-   }
-    //To center my titles: https://stackoverflow.com/questions/57245055/how-to-center-a-large-title-in-navigation-bar-in-the-middle/66366871
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .clear
+        GIDSignIn.sharedInstance()?.presentingViewController = self
         
         navigationController?.navigationBar.prefersLargeTitles = true
+        view.backgroundColor = .clear
         title = "Welcome!"
         
-        //Create a large, modern title at the top of the screen
+        let appearance = UINavigationBarAppearance()
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+        navigationItem.standardAppearance = appearance
         
-        let LogInButton = UIButton(frame: CGRect(x: 100,
-                                            y: 300,
-                                            width: 200,
-                                            height: 60))
-        LogInButton.setTitle("Log In",
-                        for: .normal)
+        //Forces white title: https://stackoverflow.com/questions/43706103/how-to-change-navigationitem-title-color
         
-        LogInButton.setTitleColor(.purple,
-                             for: .normal)
+        let gradient = CAGradientLayer()
+         gradient.frame = self.view.bounds
+         gradient.startPoint = CGPoint(x:0.0, y:0.5)
+         gradient.endPoint = CGPoint(x:1.0, y:0.5)
+         gradient.colors = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
+         gradient.locations =  [-0.5, 1.5]
+
+         let animation = CABasicAnimation(keyPath: "colors")
+         animation.fromValue = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
+        animation.toValue = [UIColor.systemPurple.cgColor, UIColor.systemTeal.cgColor]
+         animation.duration = 5.0
+         animation.autoreverses = true
+         animation.repeatCount = Float.infinity
+
+         gradient.add(animation, forKey: nil)
+         self.view.layer.addSublayer(gradient)
         
-        LogInButton.addTarget(self,
-                         action: #selector(LoginButtonAction),
-                         for: .touchUpInside)
         
-        self.view.addSubview(LogInButton)
+        //Background animation: https://appcodelabs.com/make-your-ios-app-pop-animated-gradients
         
         
-        let SignUpButton = UIButton(frame: CGRect(x: 100,
-                                            y: 500,
-                                            width: 200,
-                                            height: 60))
-        SignUpButton.setTitle("Sign Up",
-                        for: .normal)
-        
-        SignUpButton.setTitleColor(.purple,
-                             for: .normal)
-        
-        SignUpButton.addTarget(self,
-                         action: #selector(SignUpButtonAction),
-                         for: .touchUpInside)
-        
-        self.view.addSubview(SignUpButton)
-        
-        //Creating a button to with the title of "Log In": https://programmingwithswift.com/add-uibutton-programmatically-using-swidt/
-    
+        view.addSubview(LoginContainer)
+        LoginContainer.addSubview(blankspace)
+        LoginContainer.addSubview(SignupButton)
+        LoginContainer.addSubview(LoginButton)
+        ///LoginContainer.addSubview(GoogleButton)
+        SignupButton.addTarget(self, action: #selector(SignUpButtonAction), for: .touchUpInside)
+        LoginButton.addTarget(self, action: #selector(LoginButtonAction), for: .touchUpInside)
     }
+    
+    private let LoginContainer: UIScrollView = {
+        let LoginContainer = UIScrollView()
+        LoginContainer.clipsToBounds = true
+        return LoginContainer
+        
+    }()
+    
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.centerTitle()
+    }
+    
+    //To center my titles: https://stackoverflow.com/questions/57245055/how-to-center-a-large-title-in-navigation-bar-in-the-middle/66366871
+    
+    private let blankspace: UIImageView = {
+        let blankspace = UIImageView()
+        blankspace.image = UIImage(named: "blank")
+        blankspace.contentMode = .scaleAspectFit
+        blankspace.layer.masksToBounds = true
+        return blankspace
+    }()
+    
+    // Creates a UIImage of the logo image, makes it scale to fit the device
+    
+    
+    private let LoginButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Login", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 25, weight: .bold)
+        button.backgroundColor = MessagezoidBlue
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 20
+        button.setTitleColor(.white, for: .normal)
+        return button
+    }()
+    
+    //Creates login button and it's properties
+    
+    private let SignupButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Sign Up", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 25, weight: .bold)
+        button.backgroundColor = .systemGreen
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 20
+        button.setTitleColor(.white, for: .normal)
+        return button
+    }()
+    
+    //Creates signup button and it's properties
+    
+    ///private let GoogleButton = GIDSignInButton()
+    
+    //Creates signup button and it's properties
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        LoginContainer.frame = view.bounds
+        let size = LoginContainer.width/3
+        blankspace.frame = CGRect(x: (LoginContainer.width-size)/2, y: 20, width: size, height: size)
+        LoginButton.frame = CGRect(x: 45, y: blankspace.bottom + 40, width: LoginContainer.width - 90, height: 52)
+        SignupButton.frame = CGRect(x: 45, y: LoginButton.bottom + 40, width: LoginContainer.width - 90, height: 52)
+        ///GoogleButton.frame = CGRect(x: 45, y: SignupButton.bottom + 40, width: LoginContainer.width - 90, height: 52)
+        
+        //This code will ensure the image is centred along the x axis: https://stackoverflow.com/questions/28173205/how-to-center-an-element-swift
+    }
+    
     
     @objc private func LoginButtonAction() {
         let vc = UserLoginViewController()
@@ -76,3 +138,15 @@ class LoginViewController: UIViewController {
     
     
 }
+
+
+//private let GoogleButton: UIButton = {
+//    let button = UIButton()
+//    button.setTitle("Continue with Google", for: .normal)
+//    button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+//    button.backgroundColor = .white
+//    button.setTitleColor(.black, for: .normal)
+//    button.layer.masksToBounds = true
+//    button.layer.cornerRadius = 20
+//    return button
+//}()

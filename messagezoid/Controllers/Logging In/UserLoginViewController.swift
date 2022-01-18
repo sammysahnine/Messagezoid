@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class UserLoginViewController: UIViewController {
     
@@ -37,12 +38,17 @@ class UserLoginViewController: UIViewController {
         let field = UITextField()
         field.autocapitalizationType = .none
         field.autocorrectionType = .no
-        field.backgroundColor = .darkGray
+        field.backgroundColor = .white
         field.returnKeyType = .default
         field.layer.cornerRadius = 12
         field.layer.borderWidth = 3
         field.layer.borderColor = UIColor.darkGray.cgColor
-        field.placeholder = "Email Address..."
+        field.attributedPlaceholder = NSAttributedString(string: "Email Address...",
+                                     attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray])
+        
+        // Makes placeholder text visible: https://www.codegrepper.com/code-examples/swift/change+placeholder+text+color+in+swift
+        
+        field.textColor = UIColor.black
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
@@ -58,13 +64,15 @@ class UserLoginViewController: UIViewController {
         let field = UITextField()
         field.autocapitalizationType = .none
         field.autocorrectionType = .no
-        field.backgroundColor = .darkGray
+        field.backgroundColor = .white
         field.returnKeyType = .default
         field.layer.cornerRadius = 12
         field.layer.borderWidth = 3
         field.isSecureTextEntry = true
         field.layer.borderColor = UIColor.darkGray.cgColor
-        field.placeholder = "Password..."
+        field.attributedPlaceholder = NSAttributedString(string: "Password...",
+                                     attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray])
+        field.textColor = UIColor.black
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
@@ -92,9 +100,40 @@ class UserLoginViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .clear
+        
+        self.navigationController?.navigationBar.tintColor = UIColor.white
+        //Makes back button white: https://stackoverflow.com/questions/46419286/how-to-change-the-back-button-color-in-a-detailviewcontroller
+        
         navigationController?.navigationBar.prefersLargeTitles = true
+        view.backgroundColor = .clear
         title = "Log In to MessageZoid"
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+        navigationItem.standardAppearance = appearance
+        
+        //Forces white title: https://stackoverflow.com/questions/43706103/how-to-change-navigationitem-title-color
+        
+        let gradient = CAGradientLayer()
+         gradient.frame = self.view.bounds
+         gradient.startPoint = CGPoint(x:0.0, y:0.5)
+         gradient.endPoint = CGPoint(x:1.0, y:0.5)
+         gradient.colors = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
+         gradient.locations =  [-0.5, 1.5]
+
+         let animation = CABasicAnimation(keyPath: "colors")
+         animation.fromValue = [UIColor.systemPurple.cgColor, UIColor.systemTeal.cgColor]
+        animation.toValue = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
+         animation.duration = 5.0
+         animation.autoreverses = true
+         animation.repeatCount = Float.infinity
+
+         gradient.add(animation, forKey: nil)
+         self.view.layer.addSublayer(gradient)
+        
+        
+        //Background animation: https://appcodelabs.com/make-your-ios-app-pop-animated-gradients
         
         view.addSubview(LoginContainer)
         LoginContainer.addSubview(blankspace)
@@ -128,16 +167,30 @@ class UserLoginViewController: UIViewController {
                   LoginErrorLocal()
                   return
               }
+    
+        FirebaseAuth.Auth.auth().signIn(withEmail: CheckEmail, password: CheckPassword, completion: { [weak self] LoginResult, error in
+            guard let strong = self else {
+                return
+            }
+            
+            guard error == nil else {
+                self?.LoginErrorLocal()
+                return
+            }
+            strong.navigationController?.dismiss(animated: true, completion: nil )
+            
+        })
+    
     }
     
     //Checks that username + password field have text entered
     
     func LoginErrorLocal() {
-        let popup = UIAlertController(title: "Something's not right!", message: "Either your email or password field seems to be empty! Maybe try checking that and then try again!", preferredStyle: .alert)
+        let popup = UIAlertController(title: "Something's not right!", message: "Try checking your username and email again!", preferredStyle: .alert)
         popup.addAction(UIAlertAction(title: "Got it!", style: .cancel, handler: nil))
         present(popup, animated: true)
         
-        //Creates pop up if text is nit entered
+        //Creates pop up if text is not entered
         //Popup alert code for emty text fields: https://stackoverflow.com/questions/24022479/how-would-i-create-a-uialertview-in-swift
         
         

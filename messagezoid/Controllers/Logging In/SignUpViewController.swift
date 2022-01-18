@@ -6,24 +6,54 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseDatabase
 
 class SignUpViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .clear
+        
+        self.navigationController?.navigationBar.tintColor = UIColor.white
+        //Makes back button white: https://stackoverflow.com/questions/46419286/how-to-change-the-back-button-color-in-a-detailviewcontroller
+        
         navigationController?.navigationBar.prefersLargeTitles = true
         title = "Register"
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+        navigationItem.standardAppearance = appearance
+        
+        //Forces white title: https://stackoverflow.com/questions/43706103/how-to-change-navigationitem-title-color
+        
+        let gradient = CAGradientLayer()
+         gradient.frame = self.view.bounds
+         gradient.startPoint = CGPoint(x:0.0, y:0.5)
+         gradient.endPoint = CGPoint(x:1.0, y:0.5)
+         gradient.colors = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
+         gradient.locations =  [-0.5, 1.5]
+
+         let animation = CABasicAnimation(keyPath: "colors")
+        animation.fromValue = [UIColor.systemPurple.cgColor, UIColor.systemTeal.cgColor]
+        animation.toValue = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
+         animation.duration = 5.0
+         animation.autoreverses = true
+         animation.repeatCount = Float.infinity
+
+         gradient.add(animation, forKey: nil)
+         self.view.layer.addSublayer(gradient)
+        
+        
+        //Background animation: https://appcodelabs.com/make-your-ios-app-pop-animated-gradients
+        
         view.addSubview(LoginContainer)
         LoginContainer.addSubview(blankspace)
         LoginContainer.addSubview(CreateEmail)
-        ///CreateEmail.delegate = self
         LoginContainer.addSubview(CreatePassword)
-        ///CreatePassword.delegate = self
         LoginContainer.addSubview(SignupButton)
         LoginContainer.addSubview(PFPButton)
         LoginContainer.addSubview(CreateUsername)
-        ///CreateUsername.delegate = self
         SignupButton.addTarget(self, action: #selector(LoginValidate), for: .touchUpInside)
         PFPButton.addTarget(self, action: #selector(ChangePFP), for: .touchUpInside)
     }
@@ -51,8 +81,8 @@ class SignUpViewController: UIViewController {
         let blankspace = UIImageView()
         blankspace.image = UIImage(named: "blankpfp")
         blankspace.contentMode = .scaleAspectFit
-        blankspace.layer.masksToBounds = true
-        blankspace.layer.cornerRadius = 65
+        blankspace.clipsToBounds = true
+        blankspace.layer.cornerRadius = blankspace.frame.size.width/2
         return blankspace
     }()
     
@@ -61,13 +91,18 @@ class SignUpViewController: UIViewController {
     private let CreateEmail: UITextField = {
         let field = UITextField()
         field.autocapitalizationType = .none
-        field.backgroundColor = .darkGray
+        field.backgroundColor = .white
         field.autocorrectionType = .no
         field.returnKeyType = .default
         field.layer.cornerRadius = 12
         field.layer.borderWidth = 3
         field.layer.borderColor = UIColor.darkGray.cgColor
-        field.placeholder = "Email Address..."
+        field.attributedPlaceholder = NSAttributedString(string: "Email Address...",
+                                     attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray])
+        
+        // Makes placeholder text visible: https://www.codegrepper.com/code-examples/swift/change+placeholder+text+color+in+swift
+        
+        field.textColor = UIColor.black
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
@@ -82,15 +117,16 @@ class SignUpViewController: UIViewController {
     private let CreatePassword: UITextField = {
         let field = UITextField()
         field.autocapitalizationType = .none
-        field.backgroundColor = .darkGray
+        field.backgroundColor = .white
         field.autocorrectionType = .no
         field.returnKeyType = .default
+        field.isSecureTextEntry = true
         field.layer.cornerRadius = 12
         field.layer.borderWidth = 3
-        field.isSecureTextEntry = true
         field.layer.borderColor = UIColor.darkGray.cgColor
-        field.placeholder = "Password..."
-        
+        field.attributedPlaceholder = NSAttributedString(string: "Password...",
+                                     attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray])
+        field.textColor = UIColor.black
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
         //Ensures there is a suitable gap between the textbox border and the text
@@ -104,14 +140,15 @@ class SignUpViewController: UIViewController {
     private let CreateUsername: UITextField = {
         let field = UITextField()
         field.autocapitalizationType = .none
-        field.backgroundColor = .darkGray
+        field.backgroundColor = .white
         field.autocorrectionType = .no
         field.returnKeyType = .default
         field.layer.cornerRadius = 12
         field.layer.borderWidth = 3
         field.layer.borderColor = UIColor.darkGray.cgColor
-        field.placeholder = "Display Name..."
-        
+        field.attributedPlaceholder = NSAttributedString(string: "Display Name...",
+                                     attributes: [NSAttributedString.Key.foregroundColor: UIColor.darkGray])
+        field.textColor = UIColor.black
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
         //Ensures there is a suitable gap between the textbox border and the text
@@ -170,11 +207,61 @@ class SignUpViewController: UIViewController {
             LoginErrorLocal()
             return
         }
-        //This code ensuures that there is text in all the textboxes: https://stackoverflow.com/questions/24102641/how-to-check-if-a-text-field-is-empty-or-not-in-swift
+        //This code ensures that there is text in all the textboxes: https://stackoverflow.com/questions/24102641/how-to-check-if-a-text-field-is-empty-or-not-in-swift
+        
+        
+        if case isValidPassword(CheckPassword) = false {
+            PasswordErrorLocal()
+            return
+        }
+                
+        //Checking password complexity
+        
+        
+        FirebaseAuth.Auth.auth().createUser(withEmail: CheckEmail, password: CheckPassword, completion: { [weak self] LoginResult, error in
+            
+            guard let strong = self else {
+                return
+            }
+            
+            guard error == nil else {
+                self?.LoginErrorLocal()
+                return
+            }
+            
+            guard let userID = Auth.auth().currentUser?.uid else {
+                return
+                
+            }
+            
+            DatabaseController.shared.UserBuilder(with: NewUser(email: CheckEmail, username: CheckUsername, userID: userID))
+            strong.navigationController?.dismiss(animated: true, completion: nil )
+        })
+    
     }
     
+    private var authUser : User? {
+        return Auth.auth().currentUser
+    }
+
+///    public func sendVerificationMail() {
+///        if self.authUser != nil && !self.authUser!.isEmailVerified {
+///            self.authUser!.sendEmailVerification(completion: { (error) in
+///                let popup = UIAlertController(title: "Something's not right!", message: "Verification email couldn't be sent. Please try again", preferredStyle: .alert)
+///                popup.addAction(UIAlertAction(title: "Got it!", style: .cancel, handler: nil))
+///                self.present(popup, animated: true)
+///            })
+///       }
+///        else {
+///           // Either the user is not available, or the user is already verified.
+///        }
+///    }
+    
+    //User Verification Email: https://stackoverflow.com/questions/49134297/send-an-email-verfication-email-to-a-new-firebase-user-in-swift
+
+    
     func LoginErrorLocal() {
-        let popup = UIAlertController(title: "Something's not right!", message: "Some of your registration details seem to missing!", preferredStyle: .alert)
+        let popup = UIAlertController(title: "Something's not right!", message: "Check your registration details and their formatting again!", preferredStyle: .alert)
         popup.addAction(UIAlertAction(title: "Got it!", style: .cancel, handler: nil))
         present(popup, animated: true)
         
@@ -183,6 +270,27 @@ class SignUpViewController: UIViewController {
         
     }
     
+    func PasswordErrorLocal() {
+        let popup = UIAlertController(title: "Something's not right!", message: "Ensure your password has one capital letter, one lowercase letter, one number, and is at least 8 characters!", preferredStyle: .alert)
+        popup.addAction(UIAlertAction(title: "Got it!", style: .cancel, handler: nil))
+        present(popup, animated: true)
+        
+        //Popup alert code for emty text fields: https://stackoverflow.com/questions/24022479/how-would-i-create-a-uialertview-in-swift
+        
+        
+    }
+    
+    func isValidPassword(_ password : String) -> Bool {
+        // least one uppercase,
+        // least one digit
+        // least one lowercase
+        //  min 8 characters total
+        let passwordCheck = NSPredicate(format: "SELF MATCHES %@","^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$")
+        return passwordCheck.evaluate(with: password)
+    }
+    
+    
+    //Checking password complexity: https://sarunw.com/posts/different-ways-to-check-if-string-contains-another-string-in-swift/#check-if-a-string-contains-special-characters
 }
 
 extension SignUpViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -219,5 +327,6 @@ extension SignUpViewController: UIImagePickerControllerDelegate, UINavigationCon
 //User profile picture selection: https://stackoverflow.com/questions/25510081/how-to-allow-user-to-pick-the-image-with-swift
 
 //Image Editing and Extention: https://stackoverflow.com/questions/26502931/how-to-get-the-edited-image-from-uiimagepickercontroller-in-swift
+
 
 

@@ -6,33 +6,32 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseDatabase
 
 class ChatsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .darkGray
+        navigationController?.navigationBar.prefersLargeTitles = true
+        view.backgroundColor = .clear
+        title = "Chats"
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        CheckLoginStatus()
         
-        let loggedin = UserDefaults.standard.bool(forKey: "logged_in")
-        
-        //This checks if the user is currently logged in
-        
-        if !loggedin {
+    }
+    
+    func CheckLoginStatus() {
+        if FirebaseAuth.Auth.auth().currentUser == nil {
             let vc = LoginViewController()
             let nc = UINavigationController(rootViewController: vc)
             nc.modalPresentationStyle = .fullScreen
             // This stops the user from dismissing the log in screen.
             present(nc, animated: false)
-            
-        // If the user is not logged in, the Login View controller will be shown.
-            
         }
+        // If the user is not logged in, the Login View controller will be shown.
     }
-
 }
-
-
