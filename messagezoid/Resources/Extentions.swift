@@ -79,4 +79,3 @@ extension UIViewController: UITextFieldDelegate{
     }
 }
 
-//Hides keyboard when return is pressed: https://stackoverflow.com/a/57217342

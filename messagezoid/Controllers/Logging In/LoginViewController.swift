@@ -7,14 +7,11 @@
 
 import UIKit
 import FirebaseAuth
-import GoogleSignIn
 
 class LoginViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        GIDSignIn.sharedInstance()?.presentingViewController = self
         
         navigationController?.navigationBar.prefersLargeTitles = true
         view.backgroundColor = .clear

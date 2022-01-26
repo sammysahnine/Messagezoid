@@ -48,7 +48,7 @@ class SignUpViewController: UIViewController {
         //Background animation: https://appcodelabs.com/make-your-ios-app-pop-animated-gradients
         
         view.addSubview(LoginContainer)
-        LoginContainer.addSubview(blankspace)
+        LoginContainer.addSubview(pfpimage)
         LoginContainer.addSubview(CreateEmail)
         LoginContainer.addSubview(CreatePassword)
         LoginContainer.addSubview(SignupButton)
@@ -77,13 +77,13 @@ class SignUpViewController: UIViewController {
     
     //To center my titles: https://stackoverflow.com/questions/57245055/how-to-center-a-large-title-in-navigation-bar-in-the-middle/66366871
     
-    private let blankspace: UIImageView = {
-        let blankspace = UIImageView()
-        blankspace.image = UIImage(named: "blankpfp")
-        blankspace.contentMode = .scaleAspectFit
-        blankspace.clipsToBounds = true
-        blankspace.layer.cornerRadius = blankspace.frame.size.width/2
-        return blankspace
+    private let pfpimage: UIImageView = {
+        let pfpimage = UIImageView()
+        pfpimage.image = UIImage(named: "blankpfp")
+        pfpimage.contentMode = .scaleAspectFit
+        pfpimage.clipsToBounds = true
+        pfpimage.layer.cornerRadius = pfpimage.frame.size.width/2
+        return pfpimage
     }()
     
     // Creates a UIImage of the logo image, makes it scale to fit the device
@@ -189,8 +189,8 @@ class SignUpViewController: UIViewController {
         super.viewDidLayoutSubviews()
         LoginContainer.frame = view.bounds
         let size = LoginContainer.width/3
-        blankspace.frame = CGRect(x: (LoginContainer.width-size)/2, y: 20, width: size, height: size)
-        CreateEmail.frame = CGRect(x: 30, y: blankspace.bottom + 35, width: LoginContainer.width - 60, height: 42)
+        pfpimage.frame = CGRect(x: (LoginContainer.width-size)/2, y: 20, width: size, height: size)
+        CreateEmail.frame = CGRect(x: 30, y: pfpimage.bottom + 35, width: LoginContainer.width - 60, height: 42)
         CreatePassword.frame = CGRect(x: 30, y: CreateEmail.bottom + 15, width: LoginContainer.width - 60, height: 42)
         CreateUsername.frame = CGRect(x: 30, y: CreatePassword.bottom + 15, width: LoginContainer.width - 60, height: 42)
         PFPButton.frame = CGRect(x: 45, y: CreateUsername.bottom + 15, width: LoginContainer.width - 90, height: 42)
@@ -217,9 +217,8 @@ class SignUpViewController: UIViewController {
                 
         //Checking password complexity
         
-        
         FirebaseAuth.Auth.auth().createUser(withEmail: CheckEmail, password: CheckPassword, completion: { [weak self] LoginResult, error in
-            
+    
             guard let strong = self else {
                 return
             }
@@ -231,10 +230,30 @@ class SignUpViewController: UIViewController {
             
             guard let userID = Auth.auth().currentUser?.uid else {
                 return
-                
             }
             
-            DatabaseController.shared.UserBuilder(with: NewUser(email: CheckEmail, username: CheckUsername, userID: userID))
+            UserDefaults.standard.set(userID, forKey: "userID")
+            UserDefaults.standard.set(CheckEmail, forKey: "emailaddress")
+            
+            let completionUser = NewUser(email: CheckEmail, username: CheckUsername, userID: userID)
+            DatabaseController.shared.UserBuilder(with: completionUser, completion: { success in
+                if success {
+                    let imageToUpload = strong.pfpimage.image
+                    guard let data = imageToUpload?.pngData() else {
+                        return
+                    }
+                    let name = completionUser.profilePicName
+                    StorageManager.shared.uploadpfp(with: data, name: name, completion: { result in
+                        switch result {
+                        case .success(let downloadUrl): break
+                            UserDefaults.standard.set(downloadUrl, forKey: "profile_pic_url")
+                        case .failure(let error):
+                            print(error)
+                        
+                        }
+                    })
+                }
+            })
             strong.navigationController?.dismiss(animated: true, completion: nil )
         })
     
@@ -313,7 +332,7 @@ extension SignUpViewController: UIImagePickerControllerDelegate, UINavigationCon
             return
         }
         
-        self.blankspace.image = NewProfilePicture
+        self.pfpimage.image = NewProfilePicture
         //Changes default profile picture at top of screen
     }
     

@@ -106,7 +106,7 @@ class UserLoginViewController: UIViewController {
         
         navigationController?.navigationBar.prefersLargeTitles = true
         view.backgroundColor = .clear
-        title = "Log In to MessageZoid"
+        title = "Log In"
         
         let appearance = UINavigationBarAppearance()
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
@@ -145,6 +145,7 @@ class UserLoginViewController: UIViewController {
         LoginButton.addTarget(self, action: #selector(LoginValidate), for: .touchUpInside)
     }
     
+    
     //Adds elements to Container
     
     override func viewDidLayoutSubviews() {
@@ -162,6 +163,8 @@ class UserLoginViewController: UIViewController {
     @objc private func LoginValidate() {
         CreateEmail.resignFirstResponder()
         CreatePassword.resignFirstResponder()
+        
+        
         guard let CheckEmail = CreateEmail.text, let CheckPassword = CreatePassword.text,
               !CheckEmail.isEmpty, !CheckPassword.isEmpty else {
                   LoginErrorLocal()
@@ -177,8 +180,15 @@ class UserLoginViewController: UIViewController {
                 self?.LoginErrorLocal()
                 return
             }
-            strong.navigationController?.dismiss(animated: true, completion: nil )
             
+            //Returns error message is an error occures
+            
+            let userID = Auth.auth().currentUser?.uid
+            UserDefaults.standard.set(userID, forKey: "userID")
+            UserDefaults.standard.set(CheckEmail, forKey: "emailaddress")
+            //Saves email and UID to
+            strong.navigationController?.dismiss(animated: true, completion: nil )
+            //Else, logs user in
         })
     
     }

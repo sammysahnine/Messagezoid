@@ -10,18 +10,48 @@ import FirebaseDatabase
 
 class SettingsViewController: UIViewController {
 
-    @IBOutlet var tableView: UITableView!
+    @IBOutlet var tableView: UITableView?
     
    let data = ["Log Out"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.register(UITableViewCell.self,
+        tableView?.register(UITableViewCell.self,
                            forCellReuseIdentifier: "cell")
-        tableView.delegate = self
-        tableView.dataSource = self
+        tableView?.delegate = self
+        tableView?.dataSource = self
+        tableView?.tableHeaderView = createHeader()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        tableView?.register(UITableViewCell.self,
+                           forCellReuseIdentifier: "cell")
+        tableView?.delegate = self
+        tableView?.dataSource = self
+        tableView?.tableHeaderView = createHeader()
+    }
+    
+    func createHeader () -> UIView? {
+        let userID = UserDefaults.standard.value(forKey: "userID") as! String
+        let pfpfilename = userID + "_profilepic.png"
+        //Lets variable 'pfpfilename' equal the user's profile picture filename in the storage server
+        let pfpdirectory = "ProfilePic/" + pfpfilename
+        //Lets variable 'pfpdirectory' equal the user's profile picture's path in the storage server
+        
+        let headerview = UIView(frame:CGRect(x: 0, y: 0, width: self.view.width, height: 300))
+        let imageView = UIImageView(frame: CGRect(x: (view.width-120)/2, y: 90, width: 120, height: 120))
+        
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.borderColor = UIColor.systemFill.cgColor
+        imageView.layer.borderWidth = 3
+        imageView.layer.masksToBounds = true
+        imageView.addSubview(imageView)
+        return headerview
+        
     }
 }
+
 
 extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

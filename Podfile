@@ -10,8 +10,12 @@ target 'messagezoid' do
 pod 'Firebase/Core'
 pod 'Firebase/Database'
 pod 'Firebase/Auth'
-pod 'GoogleSignIn', '~> 5.0'
 pod 'Firebase'
+pod 'Firebase/Storage'
+pod 'MessageKit'
+pod 'Firebase/Analytics'
+pod 'RealmSwift'
+pod 'SDWebImage'
 
 
 end
