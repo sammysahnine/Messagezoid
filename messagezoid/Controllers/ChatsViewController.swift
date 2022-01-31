@@ -33,30 +33,37 @@ class ChatsViewController: UIViewController {
         view.addSubview(NoChats)
         view.addSubview(tableView)
         //Having the label behind the table means that if the table is not shown, the label will inform the user of the lack of chats.
+        self.tableView.rowHeight = 75
+        //Change row height: https://stackoverflow.com/a/31854722
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(StartNewChat))
-        
-        ///navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(GoToSettings))
     }
     
     @objc private func StartNewChat(){
         let vc = NewChatViewController()
+        vc.completion = { [weak self] result in
+            self?.startNewChat(result: result)
+            //Starts new chat with the result of whichever user was pressed
+        }
         let nav = UINavigationController(rootViewController: vc)
         present(nav, animated: true)
     }
     
-//    @objc private func GoToSettings(){
-//        let vc = SettingsViewController()
-//        let nav = UINavigationController(rootViewController: vc)
-//        nav.modalPresentationStyle = .fullScreen
-//        // This stops the user from dismissing the log in screen.
-//        present(nav, animated: true)
-//    }
+    //Change VC to choose a user
     
     override func viewDidLayoutSubviews() {
          super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
     }
+    
+    private func startNewChat(result:[String:String]) {
+        let vc = ChatViewController()
+        vc.title = "User 1"
+        vc.navigationItem.largeTitleDisplayMode = .always
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    //Sets table's frame
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -65,6 +72,8 @@ class ChatsViewController: UIViewController {
         tableView.dataSource = self
         getChats()
     }
+    
+    //Gets messages from server when needed.
     
     func CheckLoginStatus() {
         if FirebaseAuth.Auth.auth().currentUser == nil {
@@ -109,4 +118,5 @@ extension ChatsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
 }
-    
+
+

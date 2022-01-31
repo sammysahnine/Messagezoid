@@ -117,10 +117,10 @@
 		A5EB14DC2788739D008F1972 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				A5EB14C72788729A008F1972 /* AppDelegate.swift */,
-				A57B739327A141A2003ABA9D /* Storage.swift */,
-				A5EB14C92788729A008F1972 /* SceneDelegate.swift */,
 				A59212F22788E11E00F94670 /* Extentions.swift */,
+				A5EB14C72788729A008F1972 /* AppDelegate.swift */,
+				A5EB14C92788729A008F1972 /* SceneDelegate.swift */,
+				A57B739327A141A2003ABA9D /* Storage.swift */,
 				A598D0A0279307A700C7377D /* Database.swift */,
 			);
 			path = Resources;

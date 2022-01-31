@@ -10,26 +10,17 @@ import FirebaseDatabase
 
 class SettingsViewController: UIViewController {
 
-    @IBOutlet var tableView: UITableView?
+    @IBOutlet var tableView: UITableView!
     
    let data = ["Log Out"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView?.register(UITableViewCell.self,
+        tableView.register(UITableViewCell.self,
                            forCellReuseIdentifier: "cell")
-        tableView?.delegate = self
-        tableView?.dataSource = self
-        tableView?.tableHeaderView = createHeader()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        tableView?.register(UITableViewCell.self,
-                           forCellReuseIdentifier: "cell")
-        tableView?.delegate = self
-        tableView?.dataSource = self
-        tableView?.tableHeaderView = createHeader()
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.tableHeaderView = createHeader()
     }
     
     func createHeader () -> UIView? {
@@ -39,19 +30,42 @@ class SettingsViewController: UIViewController {
         let pfpdirectory = "ProfilePic/" + pfpfilename
         //Lets variable 'pfpdirectory' equal the user's profile picture's path in the storage server
         
-        let headerview = UIView(frame:CGRect(x: 0, y: 0, width: self.view.width, height: 300))
+        let headerView = UIView(frame:CGRect(x: 0, y: 0, width: self.view.width, height: 300))
         let imageView = UIImageView(frame: CGRect(x: (view.width-120)/2, y: 90, width: 120, height: 120))
         
         imageView.contentMode = .scaleAspectFill
         imageView.layer.borderColor = UIColor.systemFill.cgColor
         imageView.layer.borderWidth = 3
+        imageView.layer.cornerRadius = imageView.width/2
         imageView.layer.masksToBounds = true
-        imageView.addSubview(imageView)
-        return headerview
+        headerView.addSubview(imageView)
         
+        StorageManager.shared.downloadURL(for: pfpdirectory, completion: { [weak self] result in
+            switch result {
+        case .success(let url):
+            self?.downloadImage(imageView: imageView, url: url)
+            print(url)
+        case .failure(let url):
+            print(url)
+            return
+            }
+        })
+        
+        return headerView
+    }
+    
+    func downloadImage(imageView: UIImageView, url: URL){
+        URLSession.shared.dataTask(with: url, completionHandler: { data, _, error in
+            guard let data = data, error == nil else{
+                return
+            }
+            DispatchQueue.main.async {
+                let image = UIImage(data: data)
+                imageView.image = image
+            }
+        }).resume()
     }
 }
-
 
 extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -94,3 +108,5 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
         
     }
 }
+
+//Creating settings screen user interface: https://www.youtube.com/watch?v=Hmr8PsG9E2w
