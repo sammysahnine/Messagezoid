@@ -15,8 +15,6 @@ final class DatabaseController {
     private let databaseadd = Database.database().reference()
 }
 
-
-
 extension DatabaseController {
     public func UserBuilder(with user: NewUser, completion: @escaping (Bool) -> Void) {
         databaseadd.child(user.userID).setValue(["username": user.username, "email": user.email], withCompletionBlock: {error, _ in
@@ -71,11 +69,26 @@ extension DatabaseController {
     public enum FetchError: Error {
         case couldNotRequest
     }
+    
+}
+
+//This allows the searching of users: https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html, https://www.youtube.com/watch?v=Hmr8PsG9E2w, https://firebase.google.com/docs/firestore/manage-data/data-types
+
+extension DatabaseController {
+    public func startNewChat(with otherUID: String, message: Message, completion: @escaping(Bool) -> Void) {
+        
+    }
+    
+    public func fetchChats(with otherUID: String) {
+        
+    }
+    
+    public func sendMessage(to: String, message: Message, completion: @escaping(Bool) -> Void) {
+        
+    }
 }
 
 
-
-//This allows the searching of users: https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html, https://www.youtube.com/watch?v=Hmr8PsG9E2w, https://firebase.google.com/docs/firestore/manage-data/data-types
 
 struct NewUser {
     let email: String

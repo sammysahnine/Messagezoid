@@ -184,9 +184,10 @@ class UserLoginViewController: UIViewController {
             //Returns error message is an error occures
             
             let userID = Auth.auth().currentUser?.uid
+            let CheckUsername = 
             UserDefaults.standard.set(userID, forKey: "userID")
             UserDefaults.standard.set(CheckEmail, forKey: "emailaddress")
-            //Saves email and UID to
+            //Saves email and UID to cache
             strong.navigationController?.dismiss(animated: true, completion: nil )
             //Else, logs user in
         })

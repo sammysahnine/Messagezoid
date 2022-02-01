@@ -12,7 +12,7 @@ class SettingsViewController: UIViewController {
 
     @IBOutlet var tableView: UITableView!
     
-   let data = ["Log Out"]
+    let data = ["Log Out"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +22,17 @@ class SettingsViewController: UIViewController {
         tableView.dataSource = self
         tableView.tableHeaderView = createHeader()
     }
+    
+    private let NameLabel: UILabel = {
+        let label = UILabel()
+        label.isHidden = true
+        let username = UserDefaults.standard.value(forKey: "name") as? String
+        label.text = username
+        label.textAlignment = .center
+        label.textColor = .systemRed
+        label.font = .systemFont(ofSize: 21, weight: .bold)
+        return label
+    }()
     
     func createHeader () -> UIView? {
         let userID = UserDefaults.standard.value(forKey: "userID") as! String
@@ -99,7 +110,7 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
                 strong.present(nc, animated: true)
             }
             catch {
-                print("test")
+                return
             }
         }))
         

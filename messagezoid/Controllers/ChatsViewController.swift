@@ -36,34 +36,37 @@ class ChatsViewController: UIViewController {
         self.tableView.rowHeight = 75
         //Change row height: https://stackoverflow.com/a/31854722
         navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(StartNewChat))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(searchNewChat))
     }
     
-    @objc private func StartNewChat(){
+    @objc private func searchNewChat(){
         let vc = NewChatViewController()
         vc.completion = { [weak self] result in
             self?.startNewChat(result: result)
-            //Starts new chat with the result of whichever user was pressed
+            //Starts new chat with the result of whichever user was pressed: https://www.youtube.com/watch?v=qsBDL7fT8Mg
         }
-        let nav = UINavigationController(rootViewController: vc)
-        present(nav, animated: true)
+        let nc = UINavigationController(rootViewController: vc)
+        present(nc, animated: true)
     }
-    
     //Change VC to choose a user
     
     override func viewDidLayoutSubviews() {
          super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
     }
+    //Sets table's frame
     
     private func startNewChat(result:[String:String]) {
-        let vc = ChatViewController()
-        vc.title = "User 1"
+        guard let UID = result["UID"] else {return}
+        let username = result["username"]
+        let vc = ChatViewController(with: UID)
+        vc.title = username
         vc.navigationItem.largeTitleDisplayMode = .always
         navigationController?.pushViewController(vc, animated: true)
     }
-    
-    //Sets table's frame
+    //UID is stored to be referenced later, lets device know who to send messages to
+    //Sets title as username that was clicked
+    //Switches the view controller
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -111,7 +114,8 @@ extension ChatsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = ChatViewController()
+        
+        let vc = ChatViewController(with:"")
         vc.title = "User 1"
         vc.navigationItem.largeTitleDisplayMode = .always
         navigationController?.pushViewController(vc, animated: true)

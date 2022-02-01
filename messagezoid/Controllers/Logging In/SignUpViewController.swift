@@ -234,6 +234,7 @@ class SignUpViewController: UIViewController {
             
             UserDefaults.standard.set(userID, forKey: "userID")
             UserDefaults.standard.set(CheckEmail, forKey: "emailaddress")
+            UserDefaults.standard.set(CheckUsername, forKey: "name")
             
             let completionUser = NewUser(email: CheckEmail, username: CheckUsername, userID: userID)
             DatabaseController.shared.UserBuilder(with: completionUser, completion: { success in

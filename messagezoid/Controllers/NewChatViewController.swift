@@ -5,120 +5,6 @@
 //  Created by Sammy Sahnine on 07/01/2022.
 //
 
-
-
-//import UIKit
-//
-//class NewChatViewController: UIViewController {
-//
-//    private var users = [[String: String]]()
-//    private var searchResults = [[String: String]]()
-//
-//    private var contactSearch: UISearchBar {
-//        let searchbar = UISearchBar()
-//        searchbar.placeholder = "Search by email or name..."
-//        return searchbar
-//    }
-//
-//    private var tableView: UITableView {
-//        let table = UITableView()
-//        table.isHidden = true
-//        table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-//        return table
-//    }
-//
-//    private let noResults: UILabel = {
-//        let label = UILabel()
-//        label.isHidden = true
-//        label.text = "No Users Found"
-//        label.textAlignment = .center
-//        label.textColor = .systemRed
-//        label.font = .systemFont(ofSize: 21, weight: .bold)
-//        return label
-//    }()
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        view.addSubview(noResults)
-//        view.addSubview(tableView)
-//        tableView.dataSource = self
-//        tableView.delegate = self
-//        contactSearch.delegate = self
-//        contactSearch.becomeFirstResponder()
-//        view.backgroundColor = .systemBackground
-//        navigationController?.navigationBar.topItem?.titleView = contactSearch
-//    }
-//
-//    override func viewDidLayoutSubviews() {
-//        super.viewDidLayoutSubviews()
-//        tableView.frame = view.bounds
-//        noResults.frame = CGRect(x: view.width/2, y: (view.height-100)/2, width: view.width/2, height: 100)
-//    }
-//}
-//
-//extension NewChatViewController:UITableViewDelegate, UITableViewDataSource{
-//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return searchResults.count
-//    }
-//
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-//        cell.textLabel?.text = searchResults[indexPath.row]["username"]
-//        return cell
-//    }
-//
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        tableView.deselectRow(at: indexPath, animated: true)
-//    }
-//}
-//
-//extension NewChatViewController: UISearchBarDelegate{
-//    func searchBarDone(_ searchBar: UISearchBar) {
-//        guard let searchtext = searchBar.text, !searchtext.isEmpty else{
-//            return
-//        }
-//        searchBar.resignFirstResponder()
-//
-//        self.searchUsers(query: searchtext)
-//    }
-//
-//    func searchUsers(query: String){
-//            DatabaseController.shared.requestUsers(completion: { [weak self] result in
-//                switch result {
-//                case .success(let UserList):
-//                    self?.users = UserList
-//                    self?.filterUsers(with: query)
-//                case .failure:
-//                    return
-//                }
-//           })
-//    }
-//
-//    func filterUsers(with term: String) {
-//        let searchResults: [[String: String]] = self.users.filter({
-//            guard let name = $0["username"]?.uppercased() else {
-//                return false
-//            }
-//
-//            return name.hasPrefix(term.uppercased())
-//        })
-//
-//        self.searchResults = searchResults
-//        pushSearch()
-//    }
-//    func pushSearch(){
-//        if searchResults.isEmpty {
-//            self.noResults.isHidden = false
-//            self.tableView.isHidden = true
-//        }
-//        else {
-//            self.noResults.isHidden = true
-//            self.tableView.isHidden = false
-//            self.tableView.reloadData()
-//        }
-//    }
-//}
-
 import UIKit
 
 class NewChatViewController: UIViewController {
@@ -205,9 +91,9 @@ extension NewChatViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //Start chat with selected user
         tableView.deselectRow(at: indexPath, animated: true)
-        let targetUserData = results[indexPath.row]
+        let userSearchResult = results[indexPath.row]
         dismiss(animated: true, completion: { [weak self] in
-            self?.completion?(targetUserData)
+            self?.completion?(userSearchResult)
             //Sends the user to the ChatsViewController to start a new chat with chosen user
         })
     }
