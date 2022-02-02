@@ -15,15 +15,15 @@ let newConversation = true
 //MessageKit: https://cocoapods.org/pods/MessageKit
 
 struct Message: MessageType {
-    var sender: SenderType
-    var messageId: String
-    var sentDate: Date
-    var kind: MessageKind
+    public var sender: SenderType
+    public var messageId: String
+    public var sentDate: Date
+    public var kind: MessageKind
 }
 
 struct Sender: SenderType{
-    var senderId: String
-    var displayName: String
+    public var senderId: String
+    public var displayName: String
 }
 
 class ChatViewController: MessagesViewController {
@@ -42,8 +42,6 @@ class ChatViewController: MessagesViewController {
     private let deviceSender = Sender(senderId: UserDefaults.standard.value(forKey: "userID") as! String, displayName: "UserDefaults.standard.value(forKey: 'name')")
     
     public let otherUID: String
-    
-    
     
     init(with uid: String) {
         self.otherUID = uid
@@ -82,13 +80,15 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         if newConversation == true {
             
             let date = Date() // current date
-            let unixtime = date.timeIntervalSince1970
+            let unixtime = Int(date.timeIntervalSince1970)
+            let unixtimestring = String(unixtime)
+            //https://stackoverflow.com/a/40496261
             
             
             //Gets unix time: https://stackoverflow.com/a/25096863
             //Turn time to string: https://riptutorial.com/ios/example/6436/get-unix-epoch-time
             let userID = Auth.auth().currentUser!.uid
-            let messageID = "\(userID)_\(otherUID)_at_\(unixtime)"
+            let messageID = "\(userID)_\(otherUID)_at_\(unixtimestring)"
             print(messageID)
             
             let message = Message(sender: deviceSender, messageId: messageID, sentDate: Date(), kind: .text(text))
