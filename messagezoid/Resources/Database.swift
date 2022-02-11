@@ -81,11 +81,12 @@ extension DatabaseController {
 //This allows the searching of users: https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html, https://www.youtube.com/watch?v=Hmr8PsG9E2w, https://firebase.google.com/docs/firestore/manage-data/data-types
 
 extension DatabaseController {
-    public func startNewChat(with otherUID: String, message: Message, completion: @escaping(Bool) -> Void) {
+    
+    public func startNewChat(with otherUID: String, otherName: String, message: Message, completion: @escaping(Bool) -> Void) {
         let uid = (Auth.auth().currentUser?.uid)!
         let refer = databaseadd.child("\(uid)")
         //get uid and make directory path
-        refer.observeSingleEvent(of: .value, with: { snapshot in
+        refer.observeSingleEvent(of: .value, with: { [weak self] snapshot in
             var userFolder = snapshot.value as? [String: Any]
             var messagestring = ""
             
@@ -124,14 +125,14 @@ extension DatabaseController {
             //setting up
             
             
-            let newChatData = ["chatID": chatID, "otherUID": otherUID, "first_message": ["message_content": messagestring, "date": unixtimestring]] as [String : Any]
+            let newChatData = ["chatID": chatID, "otherUID": otherUID, "otherName": otherName, "latestMessage": ["messageContent": messagestring, "date": unixtimestring]] as [String : Any]
             
             if var chats = userFolder!["chats"] as? [[String: Any]] {
                 //conversation exists
                 chats.append(newChatData)
                 userFolder?["chats"] = [newChatData]
                 refer.setValue(userFolder)
-                self.createMasterNode(chatID: chatID, message: message)
+                self?.createChatFolder(chatID: chatID, otherName: otherName, message: message)
                 
                 //Add data to the chat
                 
@@ -140,14 +141,28 @@ extension DatabaseController {
                 //doesnt exist
                 userFolder?["chats"] = [newChatData]
                 refer.setValue(userFolder)
-                self.createMasterNode(chatID: chatID, message: message)
+                self?.createChatFolder(chatID: chatID, otherName: otherName, message: message)
                 
                 //make direectory and add it to the chat
             }
+            
+            let otherNewChatData = ["chatID": chatID, "otherUID": uid, "otherName": "TestUser", "latestMessage": ["messageContent": messagestring, "date": unixtimestring]] as [String : Any]
+            
+            self?.databaseadd.child("\(otherUID)/chats").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+                if var chats = snapshot.value as? [[String:Any]] {
+                    chats.append(otherNewChatData)
+                    self?.databaseadd.child(("\(otherUID)/chats")).setValue(chatID)
+                }
+                else {
+                    self?.databaseadd.child("\(otherUID)/chats").setValue([otherNewChatData])
+                }
+            })
+            
+            
         })
     }
     
-    private func createMasterNode(chatID: String, message: Message) {
+    private func createChatFolder(chatID: String, otherName: String, message: Message) {
         
         var messagestring = ""
         
@@ -189,6 +204,7 @@ extension DatabaseController {
         
         let messageinfo: [String:Any] = [
             "senderUID": uid,
+            "otherName": otherName,
             "messageDate": unixtimestring,
             "messageKind": "text",
             "messageContent": messagestring,
@@ -211,12 +227,78 @@ extension DatabaseController {
         
     }
     
-    public func fetchChats(with otherUID: String) {
-        
+    public func fetchChats(for otherUID: String, completion: @escaping (Result<[Chat], Error>) -> Void) {
+        let uid = (Auth.auth().currentUser?.uid) ?? "Test"
+        databaseadd.child("\(uid)/chats").observe(.value, with: { snapshot in
+            guard let value = snapshot.value as? [[String:Any]] else {
+                print("cant fetch?")
+                return
+            }
+            let chats: [Chat] = value.compactMap({ dictionary in
+                let chatID = dictionary["chatID"]
+                let latestMessage = dictionary["latestMessage"] as? [String: Any]
+                let date = latestMessage?["date"] as? String
+                let content = latestMessage?["messageContent"] as? String
+                let otherUID = dictionary["otherUID"] as? String
+                let otherName = dictionary["otherName"] as? String
+                
+                let recentMessage = recentMessage(date: date!, content: content!)
+                
+///                public struct Chat {
+///                     let id: String
+///                     let otherName: String
+///                     let otherUID: String
+///                     let recentMessage: recentMessage
+///                 }
+                
+                print(Chat(id: chatID as! String, otherName: otherName ?? "OtherUser", otherUID: otherUID ?? "OtherUID", recentMessage: recentMessage))
+                return Chat(id: chatID as! String, otherName: otherName ?? "OtherUser", otherUID: otherUID ?? "OtherUID", recentMessage: recentMessage)
+            })
+            
+            completion(.success(chats))
+                    
+        })
     }
     
     public func sendMessage(to: String, message: Message, completion: @escaping(Bool) -> Void) {
         
+    }
+    
+    public func fetchChatsInChat(with chatID: String, completion: @escaping (Result<[Message], Error>) -> Void) {
+        databaseadd.child("\(chatID)/messages").observe(.value, with: { snapshot in
+            guard let value = snapshot.value as? [[String:Any]] else {
+                print("cant fetch messages in chat?")
+                return
+            }
+            let chats: [Message] = value.compactMap({ dictionary in
+                guard let content = dictionary["messageContent"] as? String,
+                      let date = dictionary["messageDate"] as? String,
+                      let messageID = dictionary["messageID"] as? String,
+                      let kind = dictionary["messageKind"] as? String,
+                      let otherName = dictionary["otherName"] as? String,
+                      let senderUID = dictionary["senderUID"] as? String else {
+                          print("nil returned")
+                          return nil
+                }
+                
+                let dateint = Int(date)
+                
+                // convert Int to TimeInterval (typealias for Double)
+                let timeInterval = TimeInterval(dateint!)
+
+                // create NSDate from Double (NSTimeInterval)
+                let dateFull = Date(timeIntervalSince1970: timeInterval)
+                
+                //https://stackoverflow.com/a/39934058
+                print("message date is \(dateFull)")
+                let sender = Sender(pfpURL: "", senderId: senderUID, displayName: otherName)
+                return Message(sender: sender, messageId: messageID, sentDate: dateFull, kind: .text(content))
+                
+            })
+            
+            completion(.success(chats))
+                    
+        })
     }
 }
 
@@ -227,7 +309,7 @@ struct NewUser {
     let username: String
     let userID: String
     var profilePicName: String {
-        return "\(userID)_profilepic.png"
+        return "images/\(userID)_profilepic.png"
     }
 }
 

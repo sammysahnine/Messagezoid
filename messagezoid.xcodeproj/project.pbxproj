@@ -13,6 +13,7 @@
 		A59212F32788E11E00F94670 /* Extentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59212F22788E11E00F94670 /* Extentions.swift */; };
 		A598D0A1279307A700C7377D /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = A598D0A0279307A700C7377D /* Database.swift */; };
 		A5B2E4032795682700F7C904 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A5B2E4022795682700F7C904 /* GoogleService-Info.plist */; };
+		A5E9BAFF27AC4BD10004F9A0 /* ChatsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E9BAFE27AC4BD10004F9A0 /* ChatsTableViewCell.swift */; };
 		A5EB14C82788729A008F1972 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EB14C72788729A008F1972 /* AppDelegate.swift */; };
 		A5EB14CA2788729A008F1972 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EB14C92788729A008F1972 /* SceneDelegate.swift */; };
 		A5EB14CC2788729A008F1972 /* ChatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EB14CB2788729A008F1972 /* ChatsViewController.swift */; };
@@ -36,6 +37,7 @@
 		A59212F22788E11E00F94670 /* Extentions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extentions.swift; sourceTree = "<group>"; };
 		A598D0A0279307A700C7377D /* Database.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		A5B2E4022795682700F7C904 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		A5E9BAFE27AC4BD10004F9A0 /* ChatsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsTableViewCell.swift; sourceTree = "<group>"; };
 		A5EB14C42788729A008F1972 /* messagezoid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = messagezoid.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5EB14C72788729A008F1972 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5EB14C92788729A008F1972 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				A5EB14D02788729B008F1972 /* Assets.xcassets */,
+				A5E9BAFE27AC4BD10004F9A0 /* ChatsTableViewCell.swift */,
 				A5EB14DE27887405008F1972 /* Storyboards */,
 			);
 			path = Views;
@@ -297,6 +300,7 @@
 				A5EB14EA2788780A008F1972 /* SettingsViewController.swift in Sources */,
 				A5EB14E4278875CE008F1972 /* PhotoViewerViewController.swift in Sources */,
 				A5EB14E82788762F008F1972 /* NewChatViewController.swift in Sources */,
+				A5E9BAFF27AC4BD10004F9A0 /* ChatsTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

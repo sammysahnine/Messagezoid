@@ -38,7 +38,7 @@ class SettingsViewController: UIViewController {
         let userID = UserDefaults.standard.value(forKey: "userID") as! String
         let pfpfilename = userID + "_profilepic.png"
         //Lets variable 'pfpfilename' equal the user's profile picture filename in the storage server
-        let pfpdirectory = "ProfilePic/" + pfpfilename
+        let pfpdirectory = "ProfilePic/images/" + pfpfilename
         //Lets variable 'pfpdirectory' equal the user's profile picture's path in the storage server
         
         let headerView = UIView(frame:CGRect(x: 0, y: 0, width: self.view.width, height: 300))

@@ -21,6 +21,13 @@ extension UIView {
     public var bottom: CGFloat {
         return self.frame.height + self.frame.origin.y
     }
+    public var left: CGFloat {
+        return self.frame.origin.x
+    }
+
+    public var right: CGFloat {
+        return self.frame.size.width + self.frame.origin.x
+    }
 }
 
 //Public Variables to help increase code efficiency: https://riptutorial.com/ios/example/13778/uiview-extension-for-size-and-frame-attributes
@@ -60,17 +67,6 @@ var MessagezoidBlue = UIColor(red: 0.149, green: 0.4706, blue: 0.6353, alpha: 1.
 var MessagezoidPurple = UIColor(red: 0.8745, green: 0.7608, blue: 0.8863, alpha: 1.0)
 
 //For custom colours: https://stackoverflow.com/questions/35073272/button-text-uicolor-from-hex-swift
-
-
-
-
-//public var left: CGFloat {
-//    return self.frame.origin.x
-//}
-//public var right: CGFloat {
-//    return self.frame.size.width + self.frame.origin.x
-//}
-
 
 extension UIViewController: UITextFieldDelegate{
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
