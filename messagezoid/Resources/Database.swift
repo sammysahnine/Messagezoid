@@ -146,19 +146,18 @@ extension DatabaseController {
                 //make direectory and add it to the chat
             }
             
-            let otherNewChatData = ["chatID": chatID, "otherUID": uid, "otherName": "TestUser", "latestMessage": ["messageContent": messagestring, "date": unixtimestring]] as [String : Any]
+            let name = UserDefaults.standard.value(forKey: "name") as! String
+            let otherNewChatData = ["chatID": chatID, "otherUID": uid, "otherName": name, "latestMessage": ["messageContent": messagestring, "date": unixtimestring]] as [String : Any]
             
             self?.databaseadd.child("\(otherUID)/chats").observeSingleEvent(of: .value, with: { [weak self] snapshot in
                 if var chats = snapshot.value as? [[String:Any]] {
                     chats.append(otherNewChatData)
-                    self?.databaseadd.child(("\(otherUID)/chats")).setValue(chatID)
+                    self?.databaseadd.child(("\(otherUID)/chats")).setValue([otherNewChatData])
                 }
                 else {
                     self?.databaseadd.child("\(otherUID)/chats").setValue([otherNewChatData])
                 }
             })
-            
-            
         })
     }
     
@@ -260,8 +259,75 @@ extension DatabaseController {
         })
     }
     
-    public func sendMessage(to: String, message: Message, completion: @escaping(Bool) -> Void) {
-        
+    public func sendMessage(to chatID: String, message: Message, otherName: String, completion: @escaping(Bool) -> Void) {
+        print(chatID)
+        databaseadd.child("\(chatID)/messages").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+            let strongSelf = self
+            guard var existingMessages = snapshot.value as? [[String:Any]] else {
+                completion(false)
+                return
+            }
+            
+            var messagestring = ""
+            
+            switch message.kind {
+            case .text(let messageText):
+                messagestring = messageText
+            case .attributedText(_):
+                break
+            case .photo(_):
+                break
+            case .video(_):
+                break
+            case .location(_):
+                break
+            case .emoji(_):
+                break
+            case .audio(_):
+                break
+            case .contact(_):
+                break
+            case .linkPreview(_):
+                break
+            case .custom(_):
+                break
+            }
+            
+            //extracting raw string data from the message
+            
+            let date = message.sentDate
+            let unixtime = Int(date.timeIntervalSince1970)
+            let unixtimestring = String(unixtime)
+            //https://stackoverflow.com/a/40496261
+            
+            //setup
+            
+            let uid = Auth.auth().currentUser!.uid as String
+            
+            //get UID
+            
+            let messageinfo: [String:Any] = [
+                "senderUID": uid,
+                "otherName": otherName,
+                "messageDate": unixtimestring,
+                "messageKind": "text",
+                "messageContent": messagestring,
+                "messageID": message.messageId]
+            
+            //build new message
+            
+            existingMessages.append(messageinfo)
+            
+            //Creates list of messages
+            
+            strongSelf!.databaseadd.child("\(chatID)/messages").setValue(existingMessages, withCompletionBlock: {error, _ in
+                guard error == nil else {
+                    completion(false)
+                    return
+                }
+                completion(true)
+            })
+        })
     }
     
     public func fetchChatsInChat(with chatID: String, completion: @escaping (Result<[Message], Error>) -> Void) {
@@ -300,9 +366,39 @@ extension DatabaseController {
                     
         })
     }
+    
+    public func fetchUsername(userID: String, completion: @escaping (Result<Any, Error>) -> Void){
+        self.databaseadd.child("\(userID)").observeSingleEvent(of: .value) { snapshot in
+            guard let value = snapshot.value else {
+                completion(.failure("cant fetch username" as! Error))
+                return
+            }
+            completion(.success(value))
+        }
+    }
+    
+//    public func isNewChat(chatID: String, completion: @escaping(Bool) -> Void) {
+//        databaseadd.child("\(chatID)/messages").observe(.value, with: { snapshot in
+//            guard let value = snapshot.value else {
+//                completion(false)
+//                return
+//            }
+//
+//            completion(true)
+//            return
+//    }
+    
+    public func isNewChat(chatID: String, completion: @escaping(Bool) -> Void) {
+        databaseadd.child("\(chatID)/messages").observe(.value, with: { snapshot in
+            guard snapshot.value != nil else {
+                completion(false)
+                return
+            }
+            completion(true)
+        })
+    }
+
 }
-
-
 
 struct NewUser {
     let email: String

@@ -11,8 +11,6 @@ import InputBarAccessoryView
 import FirebaseAuth
 import AudioToolbox
 
-let newConversation = true
-
 //MessageKit: https://cocoapods.org/pods/MessageKit
 
 struct Message: MessageType {
@@ -29,13 +27,13 @@ struct Sender: SenderType {
 }
 
 class ChatViewController: MessagesViewController {
-    public let newChat = false
     private var chats = [Message]()
     
     private let deviceSender = Sender(pfpURL: "", senderId: UserDefaults.standard.value(forKey: "userID") as! String, displayName: "You")
     
     public let otherUID: String
     public let chatID: String?
+    public var newChat = false
     
     init(with uid: String, chatID: String?) {
         self.otherUID = uid
@@ -90,44 +88,89 @@ class ChatViewController: MessagesViewController {
 }
 
 extension ChatViewController: InputBarAccessoryViewDelegate {
+    
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         guard !text.replacingOccurrences(of: " ", with: "").isEmpty else {
             return
         }
         //Ensures that an empty message is not sent, reducing spam: https://stackoverflow.com/a/37533163
-        if newConversation == true {
-            
-            let date = Date() // current date
-            let unixtime = Int(date.timeIntervalSince1970)
-            let unixtimestring = String(unixtime)
-            //https://stackoverflow.com/a/40496261
-            
-            
-            //Gets unix time: https://stackoverflow.com/a/25096863
-            //Turn time to string: https://riptutorial.com/ios/example/6436/get-unix-epoch-time
-            let userID = Auth.auth().currentUser!.uid
-            let messageID = "\(userID)_\(otherUID)_at_\(unixtimestring)"
-            print(messageID)
-            
-            let message = Message(sender: deviceSender, messageId: messageID, sentDate: Date(), kind: .text(text))
-            print(message)
-            
-            DatabaseController.shared.startNewChat(with: otherUID, otherName:self.title ?? "TestUser", message: message, completion: { success in
-                if success {
-                    return
-                }
-                else {
-                    print("error")
-                }
-            })
-        }
-        else {
-            
-        }
+        
+        let date = Date() // current date
+        let unixtime = Int(date.timeIntervalSince1970)
+        let unixtimestring = String(unixtime)
+        //https://stackoverflow.com/a/40496261
         
         
+        //Gets unix time: https://stackoverflow.com/a/25096863
+        //Turn time to string: https://riptutorial.com/ios/example/6436/get-unix-epoch-time
+        let userID = Auth.auth().currentUser!.uid
+        let messageID = "\(userID)_\(otherUID)_at_\(unixtimestring)"
+        print(messageID)
+        
+        let message = Message(sender: deviceSender, messageId: messageID, sentDate: Date(), kind: .text(text))
+        print(message)
+        
+        print("before if \(newChat)")
+        
+        
+///        if newChat == true {
+///            print("SENDING TO NEW")
+///            DatabaseController.shared.startNewChat(with: otherUID, otherName:self.title!, message: message, completion: { [weak self] success in
+///                print(\(success)")
+///                if success == true {
+///                    print("NEW CHAT STARTED")
+///                    self?.newChat = false
+///                }
+///                else {
+///                    print("error when sending new message")
+///                }
+///            })
+///        }
+///
+///
+///        else {
+///            print("SENDING TO EXISTING CHAT")
+///            guard let chatID = chatID else { return }
+///            print(chatID)
+///            DatabaseController.shared.sendMessage(to: chatID, message: message, otherName: self.title!, completion: { success in
+///                if success {
+///                    print("message sent")
+///                }
+///                else {
+///                    print("MESSAGE SEND FAILURE")
+///                }
+///            })
+///        }
+   
+        
+            if chatID == nil {
+                DatabaseController.shared.startNewChat(with: self.otherUID, otherName: self.title!, message: message, completion: { [weak self] success in
+                    if success == true {
+                        print("NEW CHAT STARTED")
+                        self?.newChat = false
+                    }
+                    else {
+                        print("error when sending new message")
+                    }
+                })
+            }
+            else {
+                print("SENDING TO EXISTING CHAT")
+                guard let chatID = self.chatID else { return }
+                print(chatID)
+                DatabaseController.shared.sendMessage(to: chatID, message: message, otherName: self.title!, completion: { success in
+                    if success {
+                        print("message sent")
+                    }
+                    else {
+                        print("MESSAGE SEND FAILURE")
+                    }
+                })
+            }
+        }
+    
     }
-}
+
 
 extension ChatViewController: MessagesDataSource, MessagesDisplayDelegate, MessagesLayoutDelegate {
     func currentSender() -> SenderType {

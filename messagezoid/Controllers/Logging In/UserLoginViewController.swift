@@ -186,9 +186,26 @@ class UserLoginViewController: UIViewController {
             let userID = Auth.auth().currentUser?.uid
             UserDefaults.standard.set(userID, forKey: "userID")
             UserDefaults.standard.set(CheckEmail, forKey: "emailaddress")
-            let displayname = //Username
-            ///UserDefaults.standard.set(displayname, forKey: "name")
             //Saves email and UID to cache
+            
+            DatabaseController.shared.fetchUsername(userID: userID!, completion: { result in
+                switch result {
+                case .success(let data):
+                    guard let user = data as? [String:Any],
+                    let username = user["username"] as? String else {
+                                return
+                            }
+                    let displayname = username
+                    UserDefaults.standard.set(displayname, forKey: "name")
+                    //Saves display name to cache
+                    
+                    
+                case .failure(_):
+                    print("failed to get username")
+                }
+            })
+            
+            
             strong.navigationController?.dismiss(animated: true, completion: nil )
             //Else, logs user in
         })
@@ -207,4 +224,5 @@ class UserLoginViewController: UIViewController {
         
         
     }
+    
 }
