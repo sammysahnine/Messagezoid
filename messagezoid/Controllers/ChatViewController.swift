@@ -112,7 +112,56 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         
         print("before if \(newChat)")
         
+        if chatID == nil {
+            DatabaseController.shared.startNewChat(with: self.otherUID, otherName: self.title!, message: message, completion: { [weak self] success in
+                if success == true {
+                    print("NEW CHAT STARTED")
+                    self?.newChat = false
+                }
+                else {
+                    print("error when sending new message")
+                }
+            })
+        }
+        else {
+            print("SENDING TO EXISTING CHAT")
+            guard let chatID = self.chatID else { return }
+            print(chatID)
+            DatabaseController.shared.sendMessage(to: chatID, message: message, otherName: self.title!, completion: { success in
+                if success {
+                    print("message sent")
+                }
+                else {
+                    print("MESSAGE SEND FAILURE")
+                }
+            })
+        }
         
+        inputBar.inputTextView.text = ""
+        //Clears textbox after message sent: https://stackoverflow.com/a/67297610
+    }
+}
+
+
+extension ChatViewController: MessagesDataSource, MessagesDisplayDelegate, MessagesLayoutDelegate {
+    func currentSender() -> SenderType {
+        return deviceSender
+    }
+    
+    func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {
+        return chats[indexPath.section]
+    }
+    
+    func numberOfSections(in messagesCollectionView: MessagesCollectionView) -> Int {
+        return chats.count
+    }
+    
+    
+}
+
+//User interface and MessageKit Code: https://messagekit.github.io, https://github.com/MessageKit/MessageKit/releases, https://stackoverflow.com/questions/51857751/how-to-properly-implement-messagekit-in-swift-4-delegate-functions-are-not-be, https://www.youtube.com/watch?v=1SqvDsz0ARo, https://www.youtube.com/watch?v=6v4fmg9iRSU, https://ibjects.medium.com/simple-text-chat-app-using-firebase-in-swift-5-b9fa91730b6c, https://www.scaledrone.com/blog/ios-chat-tutorial/, https://stackoverflow.com/questions/55052037/cast-from-string-to-unrelated-type-string-string-always-fails?rq=1, https://stackoverflow.com/questions/32665326/reference-to-property-in-closure-requires-explicit-self-to-make-capture-seman, https://stackoverflow.com/questions/26224693/how-can-i-make-the-memberwise-initialiser-public-by-default-for-structs-in-swi
+
+
 ///        if newChat == true {
 ///            print("SENDING TO NEW")
 ///            DatabaseController.shared.startNewChat(with: otherUID, otherName:self.title!, message: message, completion: { [weak self] success in
@@ -141,51 +190,3 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
 ///                }
 ///            })
 ///        }
-   
-        
-            if chatID == nil {
-                DatabaseController.shared.startNewChat(with: self.otherUID, otherName: self.title!, message: message, completion: { [weak self] success in
-                    if success == true {
-                        print("NEW CHAT STARTED")
-                        self?.newChat = false
-                    }
-                    else {
-                        print("error when sending new message")
-                    }
-                })
-            }
-            else {
-                print("SENDING TO EXISTING CHAT")
-                guard let chatID = self.chatID else { return }
-                print(chatID)
-                DatabaseController.shared.sendMessage(to: chatID, message: message, otherName: self.title!, completion: { success in
-                    if success {
-                        print("message sent")
-                    }
-                    else {
-                        print("MESSAGE SEND FAILURE")
-                    }
-                })
-            }
-        }
-    
-    }
-
-
-extension ChatViewController: MessagesDataSource, MessagesDisplayDelegate, MessagesLayoutDelegate {
-    func currentSender() -> SenderType {
-        return deviceSender
-    }
-    
-    func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {
-        return chats[indexPath.section]
-    }
-    
-    func numberOfSections(in messagesCollectionView: MessagesCollectionView) -> Int {
-        return chats.count
-    }
-    
-    
-}
-
-//User interface and MessageKit Code: https://messagekit.github.io, https://github.com/MessageKit/MessageKit/releases, https://stackoverflow.com/questions/51857751/how-to-properly-implement-messagekit-in-swift-4-delegate-functions-are-not-be, https://www.youtube.com/watch?v=1SqvDsz0ARo, https://www.youtube.com/watch?v=6v4fmg9iRSU, https://ibjects.medium.com/simple-text-chat-app-using-firebase-in-swift-5-b9fa91730b6c, https://www.scaledrone.com/blog/ios-chat-tutorial/, https://stackoverflow.com/questions/55052037/cast-from-string-to-unrelated-type-string-string-always-fails?rq=1, https://stackoverflow.com/questions/32665326/reference-to-property-in-closure-requires-explicit-self-to-make-capture-seman, https://stackoverflow.com/questions/26224693/how-can-i-make-the-memberwise-initialiser-public-by-default-for-structs-in-swi
