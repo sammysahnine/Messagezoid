@@ -68,10 +68,11 @@ var MessagezoidPurple = UIColor(red: 0.8745, green: 0.7608, blue: 0.8863, alpha:
 
 //For custom colours: https://stackoverflow.com/questions/35073272/button-text-uicolor-from-hex-swift
 
-extension UIViewController: UITextFieldDelegate{
+extension UIViewController: UITextFieldDelegate {
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true;
     }
 }
 
+//Resign keyboard: https://stackoverflow.com/a/57217342

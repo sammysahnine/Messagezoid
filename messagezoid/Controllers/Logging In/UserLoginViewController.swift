@@ -100,6 +100,10 @@ class UserLoginViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        CreateEmail.delegate = self
+        CreatePassword.delegate = self
+        //Hides keyboard when return is pressed: https://stackoverflow.com/a/57217342
+        
         
         self.navigationController?.navigationBar.tintColor = UIColor.white
         //Makes back button white: https://stackoverflow.com/questions/46419286/how-to-change-the-back-button-color-in-a-detailviewcontroller
@@ -226,3 +230,5 @@ class UserLoginViewController: UIViewController {
     }
     
 }
+
+
