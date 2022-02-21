@@ -139,6 +139,8 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         
         inputBar.inputTextView.text = ""
         //Clears textbox after message sent: https://stackoverflow.com/a/67297610
+        
+        fetchMessages(chatID: chatID ?? "Message Error")
     }
 }
 
