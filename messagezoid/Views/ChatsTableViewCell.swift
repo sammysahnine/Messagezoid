@@ -16,8 +16,9 @@ class ChatsTableViewCell: UITableViewCell {
     private let imageViewPFP: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
+        imageView.layer.cornerRadius = 45
         imageView.layer.masksToBounds = true
-        imageView.layer.cornerRadius = 50
+        imageView.clipsToBounds = true
         return imageView
     }()
     

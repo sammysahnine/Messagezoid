@@ -25,7 +25,7 @@ class SettingsViewController: UIViewController {
     
     private let NameLabel: UILabel = {
         let label = UILabel()
-        label.isHidden = true
+        label.isHidden = false
         let username = UserDefaults.standard.value(forKey: "name") as? String
         label.text = username
         label.textAlignment = .center
@@ -94,7 +94,7 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let confirmalert = UIAlertController(title: "Confirm", message: "Are you sure you want to log out?", preferredStyle: .actionSheet)
+        let confirmalert = UIAlertController(title: "Confirm", message: "Are you sure you want to log out? (If you are beta testing, please only use one account if possible. Thank you!)", preferredStyle: .actionSheet)
         confirmalert.addAction(UIAlertAction(title: "Log Out", style: .destructive, handler: { [weak self] _ in
             
             guard let strong = self else {

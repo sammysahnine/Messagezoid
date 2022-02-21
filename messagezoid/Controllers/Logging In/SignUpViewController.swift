@@ -86,6 +86,7 @@ class SignUpViewController: UIViewController {
         pfpimage.image = UIImage(named: "blankpfp")
         pfpimage.contentMode = .scaleAspectFit
         pfpimage.clipsToBounds = true
+        pfpimage.layer.masksToBounds = true
         pfpimage.layer.cornerRadius = pfpimage.frame.size.width/2
         return pfpimage
     }()
@@ -286,7 +287,7 @@ class SignUpViewController: UIViewController {
 
     
     func LoginErrorLocal() {
-        let popup = UIAlertController(title: "Something's not right!", message: "Check your registration details and their formatting again!", preferredStyle: .alert)
+        let popup = UIAlertController(title: "Something's not right!", message: "Check your registration details and their formatting again! Maybe you meant to log in instead?", preferredStyle: .alert)
         popup.addAction(UIAlertAction(title: "Got it!", style: .cancel, handler: nil))
         present(popup, animated: true)
         

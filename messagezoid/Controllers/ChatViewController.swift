@@ -19,12 +19,14 @@ struct Message: MessageType {
     public var sentDate: Date
     public var kind: MessageKind
 }
+//Structure for all messages
 
 struct Sender: SenderType {
     public var pfpURL: String
     public var senderId: String
     public var displayName: String
 }
+//Structure for all sender information
 
 class ChatViewController: MessagesViewController {
     private var chats = [Message]()
@@ -68,6 +70,8 @@ class ChatViewController: MessagesViewController {
                 DispatchQueue.main.async {
                     self?.chats = chats
                     self?.messagesCollectionView.reloadData()
+                    self?.messagesCollectionView.scrollToItem(at: IndexPath(row: 0, section: (self?.chats.count)! - 1), at: .top, animated: false)
+                    //Reload data and scroll to bottom: https://stackoverflow.com/a/58763424
                 }
                 
             case .failure(_):
@@ -90,7 +94,7 @@ class ChatViewController: MessagesViewController {
 extension ChatViewController: InputBarAccessoryViewDelegate {
     
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
-        guard !text.replacingOccurrences(of: " ", with: "").isEmpty else {
+        guard !text.replacingOccurrences(of: " ", with: "").isEmpty, !text.replacingOccurrences(of: "\n", with: "").isEmpty else {
             return
         }
         //Ensures that an empty message is not sent, reducing spam: https://stackoverflow.com/a/37533163
@@ -127,7 +131,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             print("SENDING TO EXISTING CHAT")
             guard let chatID = self.chatID else { return }
             print(chatID)
-            DatabaseController.shared.sendMessage(to: chatID, message: message, otherName: self.title!, completion: { success in
+            DatabaseController.shared.sendMessage(to: chatID, message: message, otherName: self.title!, otherUID: otherUID, completion: { success in
                 if success {
                     print("message sent")
                 }

@@ -87,7 +87,9 @@ extension DatabaseController {
         let refer = databaseadd.child("\(uid)")
         //get uid and make directory path
         refer.observeSingleEvent(of: .value, with: { [weak self] snapshot in
+            
             var userFolder = snapshot.value as? [String: Any]
+            
             var messagestring = ""
             
             switch message.kind {
@@ -127,37 +129,48 @@ extension DatabaseController {
             
             let newChatData = ["chatID": chatID, "otherUID": otherUID, "otherName": otherName, "latestMessage": ["messageContent": messagestring, "date": unixtimestring]] as [String : Any]
             
-            if var chats = userFolder!["chats"] as? [[String: Any]] {
-                //conversation exists
-                chats.append(newChatData)
-                userFolder?["chats"] = [newChatData]
-                refer.setValue(userFolder)
-                self?.createChatFolder(chatID: chatID, otherName: otherName, message: message)
-                
-                //Add data to the chat
-                
-            }
-            else {
-                //doesnt exist
-                userFolder?["chats"] = [newChatData]
-                refer.setValue(userFolder)
-                self?.createChatFolder(chatID: chatID, otherName: otherName, message: message)
-                
-                //make direectory and add it to the chat
-            }
-            
             let name = UserDefaults.standard.value(forKey: "name") as! String
             let otherNewChatData = ["chatID": chatID, "otherUID": uid, "otherName": name, "latestMessage": ["messageContent": messagestring, "date": unixtimestring]] as [String : Any]
             
             self?.databaseadd.child("\(otherUID)/chats").observeSingleEvent(of: .value, with: { [weak self] snapshot in
-                if var chats = snapshot.value as? [[String:Any]] {
-                    chats.append(otherNewChatData)
-                    self?.databaseadd.child(("\(otherUID)/chats")).setValue([otherNewChatData])
+                if var otherChats = snapshot.value as? [[String:Any]] {
+                    otherChats.append(otherNewChatData)
+                    self?.databaseadd.child("\(otherUID)/chats").setValue(otherChats)
                 }
                 else {
                     self?.databaseadd.child("\(otherUID)/chats").setValue([otherNewChatData])
                 }
             })
+            
+            if var chats = userFolder!["chats"] as? [[String: Any]] {
+                //conversation exists
+                
+                chats.append(newChatData)
+                userFolder!["chats"] = chats
+                refer.setValue(userFolder, withCompletionBlock: { [weak self] error, _ in
+                    guard error == nil else {
+                        completion(false)
+                        return
+                    }
+                self?.createChatFolder(chatID: chatID, otherName: otherName, message: message)
+                //Add data to the chat
+                })
+            }
+            
+            else {
+                //doesnt exist
+                userFolder!["chats"] = [newChatData]
+                refer.setValue(userFolder, withCompletionBlock: { [weak self] error, _ in
+                    guard error == nil else {
+                        completion(false)
+                        return
+                    }
+                self?.createChatFolder(chatID: chatID, otherName: otherName, message: message)
+                
+                //make directory and add it to the chat
+                    
+                })
+            }
         })
     }
     
@@ -227,7 +240,9 @@ extension DatabaseController {
     }
     
     public func fetchChats(for otherUID: String, completion: @escaping (Result<[Chat], Error>) -> Void) {
-        let uid = (Auth.auth().currentUser?.uid) ?? "Test"
+        guard let uid = (Auth.auth().currentUser?.uid) else {
+            return
+        }
         databaseadd.child("\(uid)/chats").observe(.value, with: { snapshot in
             guard let value = snapshot.value as? [[String:Any]] else {
                 print("cant fetch?")
@@ -259,7 +274,7 @@ extension DatabaseController {
         })
     }
     
-    public func sendMessage(to chatID: String, message: Message, otherName: String, completion: @escaping(Bool) -> Void) {
+    public func sendMessage(to chatID: String, message: Message, otherName: String, otherUID: String, completion: @escaping(Bool) -> Void) {
         print(chatID)
         databaseadd.child("\(chatID)/messages").observeSingleEvent(of: .value, with: { [weak self] snapshot in
             let strongSelf = self
@@ -314,6 +329,10 @@ extension DatabaseController {
                 "messageContent": messagestring,
                 "messageID": message.messageId]
             
+            let recentmessage: [String:Any] = [
+                "date": unixtimestring,
+                "messageContent": messagestring]
+            
             //build new message
             
             existingMessages.append(messageinfo)
@@ -325,6 +344,14 @@ extension DatabaseController {
                     completion(false)
                     return
                 }
+                
+///                strongSelf?.databaseadd.child("\(uid)/chats/latestMessage").setValue(recentmessage, withCompletionBlock: {error, _ in
+///                    guard error == nil else {
+///                        completion(false)
+///                        return
+///                    }
+///                })
+                
                 completion(true)
             })
         })

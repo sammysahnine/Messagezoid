@@ -16,7 +16,7 @@ class NewChatViewController: UIViewController {
 
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
-        searchBar.placeholder = "Search by email or name..."
+        searchBar.placeholder = "Search by username..."
         return searchBar
     }()
 

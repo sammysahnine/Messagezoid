@@ -54,12 +54,14 @@ class ChatsViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(searchNewChat))
     }
     
-    private func messageFetcher(){
-        let uid = (UserDefaults.standard.value(forKey: "userID") as? String) ?? "Test"
+    private func messageFetcher() {
+        guard let uid = UserDefaults.standard.value(forKey: "userID") as? String else {
+            return
+        }
         DatabaseController.shared.fetchChats(for: uid, completion: { [weak self] result in
             switch result {
             case .success(let chats):
-                guard self!.chats.isEmpty else {
+                guard !chats.isEmpty else {
                     return
                 }
                 
@@ -113,8 +115,6 @@ class ChatsViewController: UIViewController {
         getChats()
         messageFetcher()
         print(chats)
-        print(chats.count)
-        
         //Gets messages when view appears
     }
     
@@ -145,6 +145,7 @@ class ChatsViewController: UIViewController {
 extension ChatsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print("CHATS AMOUNT \(chats.count)")
         return chats.count
         //Adds tables depending on about of chats the user is a part of
     }
