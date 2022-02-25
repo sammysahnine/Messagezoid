@@ -13,11 +13,13 @@ class NewChatViewController: UIViewController {
     private var users = [[String: String]]()
     private var results = [[String: String]]()
     private var hasFetched = false
+    //Set up variables and assigns their correct structures
 
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.placeholder = "Search by username..."
         return searchBar
+        //Set up parameters for the textbox to search for a user
     }()
 
     private let tableView: UITableView = {
@@ -26,6 +28,7 @@ class NewChatViewController: UIViewController {
         table.register(UITableViewCell.self,
                        forCellReuseIdentifier: "cell")
         return table
+        //Set up parameters for the table
     }()
 
     private let noResultsLabel: UILabel = {
@@ -36,6 +39,7 @@ class NewChatViewController: UIViewController {
         label.textColor = .systemRed
         label.font = .systemFont(ofSize: 21, weight: .bold)
         return label
+        //Set up parameters for label that shows if no users are found
     }()
     
     private let lonelyimage: UIImageView = {
@@ -45,6 +49,7 @@ class NewChatViewController: UIViewController {
         lonelyimage.clipsToBounds = true
         lonelyimage.isHidden = true
         return lonelyimage
+        //Set up parameters for image that displays if no users are found
     }()
 
     override func viewDidLoad() {
@@ -52,13 +57,20 @@ class NewChatViewController: UIViewController {
         view.addSubview(noResultsLabel)
         view.addSubview(tableView)
         view.addSubview(lonelyimage)
+        //Adds elements to subview
         tableView.delegate = self
         tableView.dataSource = self
         self.tableView.rowHeight = 100
+        //Changes height of rows of other users
         searchBar.delegate = self
         navigationController?.navigationBar.topItem?.titleView = searchBar
         view.backgroundColor = .systemBackground
         searchBar.becomeFirstResponder()
+        //Purs the new user search box in focus
+        
+        navigationController?.navigationBar.topItem?.titleView = searchBar
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(dismissSelf))
+        //Adds a cancel button to help with users
     }
 
     override func viewDidLayoutSubviews() {
@@ -69,6 +81,7 @@ class NewChatViewController: UIViewController {
                                       width: view.width/2,
                                       height: 100)
         lonelyimage.frame = CGRect(x: (view.width/4)+20, y: noResultsLabel.top - 120, width: 150, height: 150)
+        //Lays out data in a suitable manner
     }
 
     @objc private func dismissSelf() {
@@ -80,12 +93,14 @@ class NewChatViewController: UIViewController {
 extension NewChatViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return results.count
+        //Creates suitable amount of cells
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.textLabel?.text = results[indexPath.row]["username"]
         return cell
+        //Returns cells with usernames
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -111,6 +126,8 @@ extension NewChatViewController: UISearchBarDelegate {
         results.removeAll()
 
         self.searchUsers(query: text)
+        
+        //Reset search results if starting a new search
     }
 
     func searchUsers(query: String) {
@@ -159,6 +176,7 @@ extension NewChatViewController: UISearchBarDelegate {
             print("Empty")
             print(self.results)
             print(users)
+            //Updates UI to hide table and show results if there are results...
         }
         else {
             self.noResultsLabel.isHidden = true
@@ -166,6 +184,7 @@ extension NewChatViewController: UISearchBarDelegate {
             lonelyimage.isHidden = true
             print(users)
             self.tableView.reloadData()
+            //...and vice versa
         }
     }
 

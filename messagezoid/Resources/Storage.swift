@@ -14,20 +14,24 @@ final class StorageManager {
     //Create private references
     public typealias UploadPFPDone = (Result<String, Error>) -> Void
     public func uploadpfp(with data: Data, name: String, completion: @escaping (Result<String, Error>) -> Void) {
+    //Uploading profile picture
         storage.child("ProfilePic/\(name)").putData(data, metadata: nil, completion: { metadata, error in
+        //Puts the data in a certain container in the server storage
             guard error == nil else {
                 completion(.failure(StorageErrors.failedupload))
                 return
+                //Returns error in case of upload failure
             }
             
             self.storage.child("ProfilePic/\(name)").downloadURL(completion: {url, error in
                 guard let url = url else {
                     completion(.failure(StorageErrors.failedurlfetch))
                     return
+                    //Returns error if cannot get URL of profile picture, otherwise
                 }
-                
                 let urlString = url.absoluteString
                 completion(.success(urlString))
+                //Returns the URL as a string
             })
         })
     }
@@ -41,12 +45,15 @@ final class StorageManager {
     
     public func downloadURL(for path: String, completion: @escaping (Result<URL, Error>) -> Void) {
         let reference = storage.child(path)
+        //Gets the download URL for any images
         reference.downloadURL(completion: { url, error in
             guard let url = url, error == nil else {
                 completion(.failure(StorageErrors.failedurlfetch))
+                    //Returns either an error if fetching failed...
                 return
             }
             completion(.success(url))
+            //... or the image URL in case of success.
         })
     }
 }

@@ -24,6 +24,8 @@ class SignUpViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         title = "Register"
         
+        //Changes view controller title
+        
         let appearance = UINavigationBarAppearance()
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
 
@@ -60,6 +62,9 @@ class SignUpViewController: UIViewController {
         LoginContainer.addSubview(CreateUsername)
         SignupButton.addTarget(self, action: #selector(LoginValidate), for: .touchUpInside)
         PFPButton.addTarget(self, action: #selector(ChangePFP), for: .touchUpInside)
+        
+        //Adds all elements to the subview
+        //A subview is used to help formatting on different device screen sizes
     }
     
     @objc private func ChangePFP(){
@@ -77,6 +82,7 @@ class SignUpViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         self.centerTitle()
+        //Centers the title of the view controller
     }
     
     //To center my titles: https://stackoverflow.com/questions/57245055/how-to-center-a-large-title-in-navigation-bar-in-the-middle/66366871
@@ -202,12 +208,16 @@ class SignUpViewController: UIViewController {
         SignupButton.frame = CGRect(x: 45, y: PFPButton.bottom + 15, width: LoginContainer.width - 90, height: 42)
         
         //This code will ensure the image is centred along the x axis: https://stackoverflow.com/questions/28173205/how-to-center-an-element-swift
+        //This ensures all the elements are laid out in the desired manner
     }
     
     @objc private func LoginValidate() {
         CreateUsername.resignFirstResponder()
         CreateEmail.resignFirstResponder()
         CreatePassword.resignFirstResponder()
+        
+        //Removes focus from all textboxes
+        
         guard let CheckEmail = CreateEmail.text, let CheckPassword = CreatePassword.text, let CheckUsername = CreateUsername.text, !CheckEmail.isEmpty, !CheckPassword.isEmpty, !CheckUsername.isEmpty else {
             LoginErrorLocal()
             return
@@ -215,12 +225,19 @@ class SignUpViewController: UIViewController {
         //This code ensures that there is text in all the textboxes: https://stackoverflow.com/questions/24102641/how-to-check-if-a-text-field-is-empty-or-not-in-swift
         
         
+        guard CheckEmail != "j.allen@parmiters.herts.sch.uk" else {
+            LoginAllenError()
+            return
+        }
+        
+        //Checks if a particuar email address signs up to the app
+        
         if case isValidPassword(CheckPassword) = false {
             PasswordErrorLocal()
             return
         }
                 
-        //Checking password complexity
+        //Checking password complexity, returns error if password fails to meet requirements
         
         FirebaseAuth.Auth.auth().createUser(withEmail: CheckEmail, password: CheckPassword, completion: { [weak self] LoginResult, error in
     
@@ -231,10 +248,12 @@ class SignUpViewController: UIViewController {
             guard error == nil else {
                 self?.LoginErrorLocal()
                 return
+                //Displays error if there is an error when creating an account (that hasn't already been caught and dealt with)
             }
             
             guard let userID = Auth.auth().currentUser?.uid else {
                 return
+                //Gets the user ID from server, returns if error
             }
             
             UserDefaults.standard.set(userID, forKey: "userID")
@@ -249,14 +268,17 @@ class SignUpViewController: UIViewController {
                     guard let data = imageToUpload?.pngData() else {
                         return
                     }
+                    //Gets data of image to prepare upload
+                    
                     let name = completionUser.profilePicName
                     StorageManager.shared.uploadpfp(with: data, name: name, completion: { result in
                         switch result {
-                        case .success(let downloadUrl): break
+                        case .success(let downloadUrl):
                             UserDefaults.standard.set(downloadUrl, forKey: "profile_pic_url")
+                            //Uploads profile picture to the database
                         case .failure(let error):
                             print(error)
-                        
+                            //Catches error and prevents crash
                         }
                     })
                 }
@@ -268,6 +290,7 @@ class SignUpViewController: UIViewController {
     
     private var authUser : User? {
         return Auth.auth().currentUser
+        //Returns current user
     }
 
 ///    public func sendVerificationMail() {
@@ -283,7 +306,7 @@ class SignUpViewController: UIViewController {
 ///        }
 ///    }
     
-    //User Verification Email: https://stackoverflow.com/questions/49134297/send-an-email-verfication-email-to-a-new-firebase-user-in-swift
+///    //User Verification Email: https://stackoverflow.com/questions/49134297/send-an-email-verfication-email-to-a-new-firebase-user-in-swift
 
     
     func LoginErrorLocal() {
@@ -296,12 +319,24 @@ class SignUpViewController: UIViewController {
         
     }
     
+    func LoginAllenError() {
+        let popup = UIAlertController(title: "FATAL ERROR!", message: "Brentford are a dreadful team. Please stop supporting them before using Messagezoid. Thank you!", preferredStyle: .alert)
+        popup.addAction(UIAlertAction(title: "Got it!", style: .cancel, handler: nil))
+        present(popup, animated: true)
+        
+        //Popup alert code for emty text fields: https://stackoverflow.com/questions/24022479/how-would-i-create-a-uialertview-in-swift
+        //Informs user about what error has occured (easter egg)
+        
+        
+    }
+    
     func PasswordErrorLocal() {
         let popup = UIAlertController(title: "Something's not right!", message: "Ensure your password has one capital letter, one lowercase letter, one number, and is at least 8 characters!", preferredStyle: .alert)
         popup.addAction(UIAlertAction(title: "Got it!", style: .cancel, handler: nil))
         present(popup, animated: true)
         
         //Popup alert code for emty text fields: https://stackoverflow.com/questions/24022479/how-would-i-create-a-uialertview-in-swift
+        //Informs user about what error has occured (password complexity)
         
         
     }
@@ -312,6 +347,7 @@ class SignUpViewController: UIViewController {
         // least one lowercase
         //  min 8 characters total
         let passwordCheck = NSPredicate(format: "SELF MATCHES %@","^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$")
+        //Checks password with the appropriate RegEx
         return passwordCheck.evaluate(with: password)
     }
     

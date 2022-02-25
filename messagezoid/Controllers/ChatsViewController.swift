@@ -8,10 +8,12 @@
 import UIKit
 import FirebaseAuth
 import FirebaseDatabase
+import UserNotifications
 
 public struct recentMessage {
     let date: String
     let content: String
+    //Sets up structure for how recent message data will be formatted
 }
 
 public struct Chat {
@@ -19,6 +21,7 @@ public struct Chat {
     let otherName: String
     let otherUID: String
     let recentMessage: recentMessage
+    //Sets up structure for how a chat will be formatted
 }
 
 class ChatsViewController: UIViewController {
@@ -31,6 +34,36 @@ class ChatsViewController: UIViewController {
         
         //Table created with help from: https://softauthor.com/ios-uitableview-programmatically-in-swift/
     }()
+    
+    func greetingLogic() -> String {
+      let hour = Calendar.current.component(.hour, from: Date())
+      
+      let NEW_DAY = 0
+      let NOON = 12
+      let SUNSET = 18
+      let MIDNIGHT = 24
+      
+      var greetingText = "Hello" // Default greeting text
+      switch hour {
+      case NEW_DAY..<NOON:
+          greetingText = "Good Morning,"
+          //Shows appropriate time greeting
+      case NOON..<SUNSET:
+          greetingText = "Good Afternoon,"
+          //Shows appropriate time greeting
+      case SUNSET..<MIDNIGHT:
+          greetingText = "Good Evening,"
+          //Shows appropriate time greeting
+      default:
+          _ = "Hello"
+          //Shows default time greeting
+      }
+      
+      return greetingText
+    }
+    
+    //Time based greeting text: https://freakycoder.com/ios-notes-51-how-to-set-a-time-based-dynamic-greeting-message-swift-5-6c629632ceb5
+    //For changing the title depending on the time of day to greet the user
     
     private let NoChats: UILabel = {
         let label = UILabel()
@@ -50,28 +83,36 @@ class ChatsViewController: UIViewController {
         //Having the label behind the table means that if the table is not shown, the label will inform the user of the lack of chats.
         self.tableView.rowHeight = 75
         //Change row height: https://stackoverflow.com/a/31854722
+///        let greeting = greetingLogic()
+///        guard let username = UserDefaults.standard.value(forKey: "name") else {
+///            return
+///        }
+///        title = "\(greeting) \(username)"
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(searchNewChat))
+        //Adds button to search for a new user to chat to
     }
     
     private func messageFetcher() {
         guard let uid = UserDefaults.standard.value(forKey: "userID") as? String else {
             return
         }
+        //Gets uid and saves as a variable
         DatabaseController.shared.fetchChats(for: uid, completion: { [weak self] result in
             switch result {
             case .success(let chats):
                 guard !chats.isEmpty else {
                     return
+                    //Returns code if chat is empty
                 }
-                
                 self?.chats = chats
-                
                 DispatchQueue.main.async {
                     self?.tableView.reloadData()
+                    //Refreshes table to show new messages
                 }
             case .failure(_):
                 print("failed to get")
+                //Debug print statement
             }
         })
     }
@@ -134,11 +175,11 @@ class ChatsViewController: UIViewController {
     private func tableSetup() {
         tableView.delegate = self
         tableView.dataSource = self
-        
     }
     
     private func getChats(){
         self.tableView.isHidden = false
+        //Ensures that the table of chats is shown
     }
 }
 

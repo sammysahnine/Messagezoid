@@ -14,13 +14,14 @@ class UserLoginViewController: UIViewController {
         let LoginContainer = UIScrollView()
         LoginContainer.clipsToBounds = true
         return LoginContainer
-        
+        //Creates scroll view if elements overflow off the device's screen
     }()
     
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         self.centerTitle()
+        //Centers the title
     }
     
     //To center my titles: https://stackoverflow.com/questions/57245055/how-to-center-a-large-title-in-navigation-bar-in-the-middle/66366871
@@ -111,6 +112,7 @@ class UserLoginViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         view.backgroundColor = .clear
         title = "Log In"
+        //Set up view controller title
         
         let appearance = UINavigationBarAppearance()
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
@@ -148,8 +150,6 @@ class UserLoginViewController: UIViewController {
         LoginContainer.addSubview(LoginButton)
         LoginButton.addTarget(self, action: #selector(LoginValidate), for: .touchUpInside)
     }
-    
-    
     //Adds elements to Container
     
     override func viewDidLayoutSubviews() {
@@ -162,27 +162,33 @@ class UserLoginViewController: UIViewController {
         LoginButton.frame = CGRect(x: 45, y: CreatePassword.bottom + 15, width: LoginContainer.width - 90, height: 42)
         
         //This code will ensure the image is centred along the x axis: https://stackoverflow.com/questions/28173205/how-to-center-an-element-swift
+        //This ensures all the elements are laid out in the desired manner
     }
     
     @objc private func LoginValidate() {
         CreateEmail.resignFirstResponder()
         CreatePassword.resignFirstResponder()
+        //Defocuses text boxes
         
         
         guard let CheckEmail = CreateEmail.text, let CheckPassword = CreatePassword.text,
               !CheckEmail.isEmpty, !CheckPassword.isEmpty else {
                   LoginErrorLocal()
                   return
+                  //Returns error if any of the text fields are empty
               }
     
         FirebaseAuth.Auth.auth().signIn(withEmail: CheckEmail, password: CheckPassword, completion: { [weak self] LoginResult, error in
             guard let strong = self else {
                 return
+                //Attempts to log in
             }
             
             guard error == nil else {
                 self?.LoginErrorLocal()
                 return
+                //Returns error if required
+                //This error is deliberatly ambiguous for security reasons
             }
             
             //Returns error message is an error occures
@@ -206,6 +212,7 @@ class UserLoginViewController: UIViewController {
                     
                 case .failure(_):
                     print("failed to get username")
+                    //Returns debug statement in case of error
                 }
             })
             

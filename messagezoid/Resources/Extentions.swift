@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import AVFoundation
 
 extension UIView {
     public var height: CGFloat {
@@ -29,7 +30,7 @@ extension UIView {
         return self.frame.size.width + self.frame.origin.x
     }
 }
-
+//Allows shorter pieces of code to be written, instead of repeating long lines of text
 //Public Variables to help increase code efficiency: https://riptutorial.com/ios/example/13778/uiview-extension-for-size-and-frame-attributes
 
 extension UIViewController{
@@ -76,3 +77,12 @@ extension UIViewController: UITextFieldDelegate {
 }
 
 //Resign keyboard: https://stackoverflow.com/a/57217342
+
+
+extension UIDevice {
+    static func vibrate() {
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+    }
+}
+
+//Vibrate phone: https://www.hackingwithswift.com/example-code/system/how-to-make-the-device-vibrate

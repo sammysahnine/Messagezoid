@@ -13,6 +13,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet var tableView: UITableView!
     
     let data = ["Log Out"]
+    //Gets data for filling cells
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,7 +21,9 @@ class SettingsViewController: UIViewController {
                            forCellReuseIdentifier: "cell")
         tableView.delegate = self
         tableView.dataSource = self
+        //Sets up delegates
         tableView.tableHeaderView = createHeader()
+        //Sets up header settings
     }
     
     private let NameLabel: UILabel = {
@@ -32,6 +35,7 @@ class SettingsViewController: UIViewController {
         label.textColor = .systemRed
         label.font = .systemFont(ofSize: 21, weight: .bold)
         return label
+        //Set up parameters for the label which displays the user's name
     }()
     
     func createHeader () -> UIView? {
@@ -50,12 +54,16 @@ class SettingsViewController: UIViewController {
         imageView.layer.cornerRadius = imageView.width/2
         imageView.layer.masksToBounds = true
         headerView.addSubview(imageView)
+        //Set up information for the header, such as colour and size
+        //Then proceeds to add the user's profile picture to the header
         
         StorageManager.shared.downloadURL(for: pfpdirectory, completion: { [weak self] result in
+        //Requests the user's profile picture URL
             switch result {
         case .success(let url):
             self?.downloadImage(imageView: imageView, url: url)
             print(url)
+            //Returns the image url in case of success
         case .failure(let url):
             print(url)
             return
@@ -63,9 +71,11 @@ class SettingsViewController: UIViewController {
         })
         
         return headerView
+        //Returns the header
     }
     
     func downloadImage(imageView: UIImageView, url: URL){
+    //Downloads the image for the settings screen
         URLSession.shared.dataTask(with: url, completionHandler: { data, _, error in
             guard let data = data, error == nil else{
                 return
@@ -73,6 +83,7 @@ class SettingsViewController: UIViewController {
             DispatchQueue.main.async {
                 let image = UIImage(data: data)
                 imageView.image = image
+                //Updates the header with the image
             }
         }).resume()
     }
@@ -81,6 +92,7 @@ class SettingsViewController: UIViewController {
 extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return data.count
+        //Returns the amount of cells required for the settigns screen
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -88,15 +100,18 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
         cell.textLabel?.text = data[indexPath.row]
         cell.textLabel?.textColor = .red
         cell.textLabel?.textAlignment = .center
+        //Sets up parameters for the logout button
         return cell
+        //Returns the cell for logging out
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
+        //When the logout button is pressed...
         let confirmalert = UIAlertController(title: "Confirm", message: "Are you sure you want to log out? (If you are beta testing, please only use one account if possible. Thank you!)", preferredStyle: .actionSheet)
+        //... show an alert with a certain message, as well as...
         confirmalert.addAction(UIAlertAction(title: "Log Out", style: .destructive, handler: { [weak self] _ in
-            
+        //... a button to confirm logging out...
             guard let strong = self else {
                 return
             }
@@ -106,8 +121,9 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
                 let vc = LoginViewController()
                 let nc = UINavigationController(rootViewController: vc)
                 nc.modalPresentationStyle = .fullScreen
-                // This stops the user from dismissing the log in screen.
+                // (This stops the user from dismissing the log in screen)
                 strong.present(nc, animated: true)
+                //... which logs out the user when pressed, as well as...
             }
             catch {
                 return
@@ -116,6 +132,7 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
         
         confirmalert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(confirmalert, animated: true)
+        //... a cancel button which stops the process of logging out.
         
     }
 }

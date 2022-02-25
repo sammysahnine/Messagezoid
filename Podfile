@@ -14,7 +14,6 @@ pod 'Firebase'
 pod 'Firebase/Storage'
 pod 'MessageKit'
 pod 'Firebase/Analytics'
-pod 'RealmSwift'
 pod 'SDWebImage'
 
 

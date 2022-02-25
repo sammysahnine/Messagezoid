@@ -58,6 +58,7 @@ class ChatsTableViewCell: UITableViewCell {
     public func configure(with model: Chat) {
         self.recentMessage.text = model.recentMessage.content
         self.displayName.text = model.otherName
+        //Sets the recent message and display name of 
         
         let url = "ProfilePic/images/\(model.otherUID)_profilepic.png"
         StorageManager.shared.downloadURL(for: url, completion: { [weak self] result in

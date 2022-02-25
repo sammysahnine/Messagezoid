@@ -16,6 +16,7 @@ class LoginViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         view.backgroundColor = .clear
         title = "Welcome!"
+        //Sets up the title of the view controller
         
         let appearance = UINavigationBarAppearance()
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
@@ -33,10 +34,11 @@ class LoginViewController: UIViewController {
 
          let animation = CABasicAnimation(keyPath: "colors")
          animation.fromValue = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
-        animation.toValue = [UIColor.systemPurple.cgColor, UIColor.systemTeal.cgColor]
+         animation.toValue = [UIColor.systemPurple.cgColor, UIColor.systemTeal.cgColor]
          animation.duration = 5.0
          animation.autoreverses = true
          animation.repeatCount = Float.infinity
+        //Makes animation lasts forever
 
          gradient.add(animation, forKey: nil)
          self.view.layer.addSublayer(gradient)
@@ -52,13 +54,14 @@ class LoginViewController: UIViewController {
         ///LoginContainer.addSubview(GoogleButton)
         SignupButton.addTarget(self, action: #selector(SignUpButtonAction), for: .touchUpInside)
         LoginButton.addTarget(self, action: #selector(LoginButtonAction), for: .touchUpInside)
+        //Adds elements to scroll view
     }
     
     private let LoginContainer: UIScrollView = {
         let LoginContainer = UIScrollView()
         LoginContainer.clipsToBounds = true
         return LoginContainer
-        
+        //Creates scroll view if elements overflow off the device's screen
     }()
     
     
@@ -106,10 +109,6 @@ class LoginViewController: UIViewController {
     
     //Creates signup button and it's properties
     
-    ///private let GoogleButton = GIDSignInButton()
-    
-    //Creates signup button and it's properties
-    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         LoginContainer.frame = view.bounds
@@ -120,30 +119,21 @@ class LoginViewController: UIViewController {
         ///GoogleButton.frame = CGRect(x: 45, y: SignupButton.bottom + 40, width: LoginContainer.width - 90, height: 52)
         
         //This code will ensure the image is centred along the x axis: https://stackoverflow.com/questions/28173205/how-to-center-an-element-swift
+        //This ensures all the elements are laid out in the desired manner
     }
     
     
     @objc private func LoginButtonAction() {
         let vc = UserLoginViewController()
         navigationController?.pushViewController(vc, animated: true)
+        //Changes to required view controller
     }
     
     @objc private func SignUpButtonAction() {
         let vc = SignUpViewController()
         navigationController?.pushViewController(vc, animated: true)
+        //Changes to required view controller
     }
     
     
 }
-
-
-//private let GoogleButton: UIButton = {
-//    let button = UIButton()
-//    button.setTitle("Continue with Google", for: .normal)
-//    button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
-//    button.backgroundColor = .white
-//    button.setTitleColor(.black, for: .normal)
-//    button.layer.masksToBounds = true
-//    button.layer.cornerRadius = 20
-//    return button
-//}()
