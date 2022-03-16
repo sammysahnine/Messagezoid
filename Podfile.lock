@@ -1,4 +1,5 @@
 PODS:
+  - CryptoSwift (1.4.3)
   - Firebase (8.10.0):
     - Firebase/Core (= 8.10.0)
   - Firebase/Analytics (8.10.0):
@@ -119,8 +120,12 @@ PODS:
   - SDWebImage (5.12.2):
     - SDWebImage/Core (= 5.12.2)
   - SDWebImage/Core (5.12.2)
+  - SwiftyRSA (1.7.0):
+    - SwiftyRSA/ObjC (= 1.7.0)
+  - SwiftyRSA/ObjC (1.7.0)
 
 DEPENDENCIES:
+  - CryptoSwift
   - Firebase
   - Firebase/Analytics
   - Firebase/Auth
@@ -129,9 +134,11 @@ DEPENDENCIES:
   - Firebase/Storage
   - MessageKit
   - SDWebImage
+  - SwiftyRSA
 
 SPEC REPOS:
   trunk:
+    - CryptoSwift
     - Firebase
     - FirebaseAnalytics
     - FirebaseAuth
@@ -150,8 +157,10 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - SDWebImage
+    - SwiftyRSA
 
 SPEC CHECKSUMS:
+  CryptoSwift: a0799ee936271bd2253a006f1e4523df21845000
   Firebase: 44213362f1dcc52555b935dc925ed35ac55f1b20
   FirebaseAnalytics: 319c9b3b1bdd400d60e2f415dff0c5f6959e6760
   FirebaseAuth: 59a2d2b933b5b79e18fb1e6ad230c6abdaa73d26
@@ -170,7 +179,8 @@ SPEC CHECKSUMS:
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   SDWebImage: 240e5c12b592fb1268c1d03b8c90d90e8c2ffe82
+  SwiftyRSA: 8c6dd1ea7db1b8dc4fb517a202f88bb1354bc2c6
 
-PODFILE CHECKSUM: 1bddd1b4f33790b404bc4a38c7109596fbf4073b
+PODFILE CHECKSUM: 5fc14e84c863a36997797bea4deb257a8c8a257b
 
 COCOAPODS: 1.11.2

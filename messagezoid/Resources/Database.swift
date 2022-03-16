@@ -9,6 +9,7 @@ import Foundation
 import FirebaseDatabase
 import Firebase
 import FirebaseAuth
+import CryptoSwift
 
 final class DatabaseController {
     static let shared = DatabaseController()
@@ -137,9 +138,10 @@ extension DatabaseController {
             //Making UNIX time a string: https://stackoverflow.com/a/40496261
             
             let chatID = "let_\(message.messageId)"
-            
             //Setting up the chatID and making it unique for the chat
             
+            messagestring = self!.encryptMessage(chatID: chatID, message: messagestring)
+            //Encrypts the message using the message encryption function
             
             let newChatData = ["chatID": chatID, "otherUID": otherUID, "otherName": otherName, "latestMessage": ["messageContent": messagestring, "date": unixtimestring]] as [String : Any]
             
@@ -235,6 +237,9 @@ extension DatabaseController {
         
         let uid = Auth.auth().currentUser!.uid as String
         
+        messagestring = self.encryptMessage(chatID: chatID, message: messagestring)
+        //Encrypts the message using the message encryption function
+        
         //Get current UID from Firebase
         
         let messageinfo: [String:Any] = [
@@ -276,13 +281,12 @@ extension DatabaseController {
                 let chatID = dictionary["chatID"]
                 let latestMessage = dictionary["latestMessage"] as? [String: Any]
                 let date = latestMessage?["date"] as? String
-                let content = latestMessage?["messageContent"] as? String
+                let content = self.decryptMessage(chatID: chatID as! String, message: (latestMessage?["messageContent"]) as! String)
                 let otherUID = dictionary["otherUID"] as? String
                 let otherName = dictionary["otherName"] as? String
-                
                 //Make 'chats' a dictionary consisting of multiple chat structures of all the messages in the entire chat
                 
-                let recentMessage = recentMessage(date: date!, content: content!)
+                let recentMessage = recentMessage(date: date!, content: content)
                 //Let recentMessage equal the required data, for later updating
                 
                 print(Chat(id: chatID as! String, otherName: otherName ?? "OtherUser", otherUID: otherUID ?? "OtherUID", recentMessage: recentMessage))
@@ -344,6 +348,9 @@ extension DatabaseController {
             let uid = Auth.auth().currentUser!.uid as String
             //Get current UID from Firebase
             
+            messagestring = self!.encryptMessage(chatID: chatID, message: messagestring)
+            //Encrypts the message using the message encryption function
+            
             let messageinfo: [String:Any] = [
                 "senderUID": uid,
                 "otherName": otherName,
@@ -385,7 +392,8 @@ extension DatabaseController {
                 //... otherwise, return false completion
             }
             let chats: [Message] = value.compactMap({ dictionary in
-                guard let content = dictionary["messageContent"] as? String,
+                guard let encryptedContent = dictionary["messageContent"] as? String,
+                      let content = self.decryptMessage(chatID: chatID, message: encryptedContent) as? String,
                       let date = dictionary["messageDate"] as? String,
                       let messageID = dictionary["messageID"] as? String,
                       let kind = dictionary["messageKind"] as? String,
@@ -442,7 +450,30 @@ extension DatabaseController {
             //... return true completion, indicating that the chat is pre-existing.
         })
     }
-
+    
+    public func encryptMessage(chatID: String, message: String) -> String {
+        let chatIDArray: [UInt8] = Array(chatID.utf8)
+        let salt: [UInt8] = Array("mssgzoid".utf8)
+        let key = try! PKCS5.PBKDF2(password: chatIDArray, salt: salt, iterations: 4096, keyLength: 16, variant: .sha256).calculate()
+        
+        do {
+            let cipher = try? Rabbit(key: key)
+            let base64 = try? message.encryptToBase64(cipher: cipher!)
+            return base64!
+        }
+    }
+    
+    public func decryptMessage(chatID: String, message: String) -> String {
+        let chatIDArray: [UInt8] = Array(chatID.utf8)
+        let salt: [UInt8] = Array("mssgzoid".utf8)
+        let key = try! PKCS5.PBKDF2(password: chatIDArray, salt: salt, iterations: 4096, keyLength: 16, variant: .sha256).calculate()
+        
+        do {
+            let cipher = try? Rabbit(key: key)
+            let decrypted = try? message.decryptBase64ToString(cipher: cipher!)
+            return decrypted ?? "Error: Message could not be decrypted"
+        }
+    }
 }
 
 struct NewUser {
@@ -455,4 +486,4 @@ struct NewUser {
 }
 //Structure for a new user, to help with insertion to database
 
-//Inserting to database: https://firebase.google.com/docs/database/ios/read-and-write, https://www.youtube.com/watch?v=rHo9EoscXow, https://firebase.google.com/docs, https://stackoverflow.com/questions/41355427/attempt-to-insert-non-property-list-object-when-trying-to-save-a-custom-object-i, https://stackoverflow.com/questions/49267834/swift-firebase-query-not-working, https://riptutorial.com/ios/example/6436/get-unix-epoch-time, https://stackoverflow.com/questions/49267834/swift-firebase-query-not-working, https://stackoverflow.com/questions/43477489/swift-ios-firebase-not-returning-any-data?rq=1, https://www.youtube.com/watch?v=qsBDL7fT8Mg, https://www.youtube.com/watch?v=Pu7B7uEzP18, https://firebase.google.com/support/release-notes/ios
+//Special thanks to: https://firebase.google.com/docs/database/ios/read-and-write, https://www.youtube.com/watch?v=rHo9EoscXow, https://firebase.google.com/docs, https://stackoverflow.com/questions/41355427/attempt-to-insert-non-property-list-object-when-trying-to-save-a-custom-object-i, https://stackoverflow.com/questions/49267834/swift-firebase-query-not-working, https://riptutorial.com/ios/example/6436/get-unix-epoch-time, https://stackoverflow.com/questions/49267834/swift-firebase-query-not-working, https://stackoverflow.com/questions/43477489/swift-ios-firebase-not-returning-any-data?rq=1, https://www.youtube.com/watch?v=qsBDL7fT8Mg, https://www.youtube.com/watch?v=Pu7B7uEzP18, https://firebase.google.com/support/release-notes/ios, https://en.wikipedia.org/wiki/PBKDF2, https://crypto.stackexchange.com/questions/48667/how-long-would-it-take-to-brute-force-an-aes-128-key, https://cryptoswift.io, https://github.com/krzyzanowskim/CryptoSwift, https://github.com/krzyzanowskim

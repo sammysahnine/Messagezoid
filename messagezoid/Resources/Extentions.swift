@@ -86,3 +86,9 @@ extension UIDevice {
 }
 
 //Vibrate phone: https://www.hackingwithswift.com/example-code/system/how-to-make-the-device-vibrate
+
+extension StringProtocol {
+    var data: Data { .init(utf8) }
+    var bytes: [UInt8] { .init(utf8) }
+}
+//Conversion to bytes: https://stackoverflow.com/a/28717298
